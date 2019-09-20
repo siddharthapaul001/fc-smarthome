@@ -1,5 +1,8 @@
-var express = require('express');
+const express = require('express');
 const path = require('path');
+const dbController = require('./utils/dbcontroller');
+const secret = require('./secrets/googleoauth');
+
 const app = express();
 
 var commonHeaders = {

@@ -9,10 +9,10 @@ app.get('/', (req, res)=>{
     res.writeHead(200, {
         ...commonHeaders
     })
-
-    res.write(JSON.stringify({
-        'status': 200
-    }))
+    
+    res.json({
+        status: 200
+    });
 
     res.end();
 });

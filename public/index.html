@@ -1,12 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Hind:500,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css"
+        href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/main.css">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <!-- <script src="assets/js/main.js"></script> -->
 </head>
+
 <body>
-    Hi there! Siddharta Here :)
+    <header>
+        <nav>
+            <ul>
+                <li>
+                    <a href="#">
+                        <span class="fa fa-user"></span>
+                        Hi, <span id="username">Siddhartha</span>
+                    </a>
+                    <ul class="submenu">
+                        <li>
+                            <a href="#">
+                                <span class="fa fa-sign-out"></span>
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="toggle-container">
+        <div class="toggle-wraper">
+            <label>Allowed as: </label>
+            <div class="toggle-btn-wraper">
+                <div id="room-selected" class="selected"></div>
+                <button class="btn btn-toggle" onclick="toggleRooms(1)">OWNER</button>
+                <button class="btn btn-toggle" onclick="toggleRooms(2)">GUEST</button>
+            </div>
+        </div>
+    </div>
+    <section class="rooms-container">
+        <section id="own-rooms" class="rooms-own">
+            <div class="card room">
+                <img src="assets/images/205649-furniture-color/png/bed-1.png" class="room-icon" alt="bedroom"
+                    title="bedroom">
+                <h2>Bedroom</h2>
+                <div class="stats">
+                    <div class="stat-usage">
+                        <span class="fa fa-line-chart"></span> 450KWH
+                    </div>
+                    <div class="stat-running">
+                        <span class="online"></span> 4
+                    </div>
+                    <div class="stat-devices">
+                        <span class="fa fa-microchip"></span> 10
+                    </div>
+                </div>
+            </div>
+            <div class="card room">
+                <img src="assets/images/673311-furniture/png/023-kitchen.png" class="room-icon" alt="bedroom"
+                    title="bedroom">
+                <h2>Kitchen</h2>
+                <div class="stats">
+                    <div class="stat-usage">
+                        <span class="fa fa-line-chart txt-red"></span> 450KWH
+                    </div>
+                    <div class="stat-running">
+                        <span class="online"></span> 4
+                    </div>
+                    <div class="stat-devices">
+                        <span class="fa fa-microchip"></span> 10
+                    </div>
+                </div>
+            </div>
+            <div class="card room">
+                <img src="assets/images/205649-furniture-color/png/bookcase.png" class="room-icon" alt="study"
+                    title="study">
+                <h2>Study room</h2>
+                <div class="stats">
+                    <div class="stat-usage">
+                        <span class="fa fa-line-chart txt-red"></span> 450KWH
+                    </div>
+                    <div class="stat-running">
+                        <span class="online"></span> 4
+                    </div>
+                    <div class="stat-devices">
+                        <span class="fa fa-microchip"></span> 10
+                    </div>
+                </div>
+            </div>
+            <div class="card room">
+                <img src="assets/images/205649-furniture-color/png/bookcase.png" class="room-icon" alt="study"
+                    title="study">
+                <h2>Study room</h2>
+                <div class="stats">
+                    <div class="stat-usage">
+                        <span class="fa fa-line-chart txt-red"></span> 450KWH
+                    </div>
+                    <div class="stat-running">
+                        <span class="online"></span> 4
+                    </div>
+                    <div class="stat-devices">
+                        <span class="fa fa-microchip"></span> 10
+                    </div>
+                </div>
+            </div>
+            <div class="card room add">
+                <div class="img-selector">
+                    <button class="btn btn-left">&lt;</button>
+                    <img src="assets/images/673311-furniture/png/023-kitchen.png" class="room-icon" alt="room-icon" title="room-icon" />
+                    <button class="btn btn-right">&gt;</button>
+                </div>
+                <div class="txt-room-name">
+                    <input class="inp" id="inp-room-name" type="text" placeholder="Name the room" />
+                </div>
+                <div class="stats">
+                    <button class="btn btn-add-room">+ Add room</button>
+                </div>
+            </div>
+        </section>
+        <section id="guest-rooms" class="rooms-guest">
+            <div class="card room">
+                <img src="assets/images/205649-furniture-color/png/bed-1.png" class="room-icon" alt="bedroom"
+                    title="bedroom">
+                <h2>Bedroom</h2>
+                <div class="stats">
+                    <div class="stat-usage">
+                        <span class="fa fa-line-chart"></span> 450KWH
+                    </div>
+                    <div class="stat-running">
+                        <span class="online"></span> 4
+                    </div>
+                    <div class="stat-devices">
+                        <span class="fa fa-microchip"></span> 10
+                    </div>
+                </div>
+            </div>
+            <div class="card room">
+                <img src="assets/images/673311-furniture/png/023-kitchen.png" class="room-icon" alt="bedroom"
+                    title="bedroom">
+                <h2>Kitchen</h2>
+                <div class="stats">
+                    <div class="stat-usage">
+                        <span class="fa fa-line-chart txt-red"></span> 450KWH
+                    </div>
+                    <div class="stat-running">
+                        <span class="online"></span> 4
+                    </div>
+                    <div class="stat-devices">
+                        <span class="fa fa-microchip"></span> 10
+                    </div>
+                </div>
+            </div>
+            <div class="card room">
+                <img src="assets/images/205649-furniture-color/png/bookcase.png" class="room-icon" alt="study"
+                    title="study">
+                <h2>Study room</h2>
+                <div class="stats">
+                    <div class="stat-usage">
+                        <span class="fa fa-line-chart txt-red"></span> 450KWH
+                    </div>
+                    <div class="stat-running">
+                        <span class="online"></span> 4
+                    </div>
+                    <div class="stat-devices">
+                        <span class="fa fa-microchip"></span> 10
+                    </div>
+                </div>
+            </div>
+            <div class="card room">
+                <img src="assets/images/205649-furniture-color/png/bookcase.png" class="room-icon" alt="study"
+                    title="study">
+                <h2>Study room</h2>
+                <div class="stats">
+                    <div class="stat-usage">
+                        <span class="fa fa-line-chart txt-red"></span> 450KWH
+                    </div>
+                    <div class="stat-running">
+                        <span class="online"></span> 4
+                    </div>
+                    <div class="stat-devices">
+                        <span class="fa fa-microchip"></span> 10
+                    </div>
+                </div>
+            </div>
+        </section>
+    </section>
+
+    <!-- <footer>
+        <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a
+                href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+    </footer> -->
+
+    <script>
+        var roomCategory = 1, requestedToggle = false;
+        var roomSelected = document.getElementById('room-selected'),
+            ownRooms = document.getElementById('own-rooms');
+        function toggleRooms(category) {
+            if (category !== roomCategory) {
+
+                if (!requestedToggle) {
+                    requestAnimationFrame(() => {
+                        roomSelected.setAttribute('style', 'left:' + ((roomCategory - 1) * 50) + '%;right:' + ((2 - roomCategory) * 50) + '%;');
+                        ownRooms.setAttribute('style', 'margin-left:-' + ((roomCategory - 1) * 100) + '%');
+                        requestedToggle = false;
+                    });
+                    requestedToggle = true;
+                }
+                roomCategory = category;
+            }
+        }
+
+        function removeRoom(){
+            
+        }
+        function addRoom(){
+
+        }
+    </script>
 </body>
+
 </html>

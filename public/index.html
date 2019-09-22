@@ -10,7 +10,7 @@
     <link rel="stylesheet" type="text/css" href="assets/css/main.css">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <!-- <script src="assets/js/main.js"></script> -->
+    <script src="assets/js/main.js"></script>
 </head>
 
 <body>
@@ -47,71 +47,7 @@
     </div>
     <section class="rooms-container">
         <section id="own-rooms" class="rooms-own">
-            <div class="card room">
-                <img src="assets/images/205649-furniture-color/png/bed-1.png" class="room-icon" alt="bedroom"
-                    title="bedroom">
-                <h2>Bedroom</h2>
-                <div class="stats">
-                    <div class="stat-usage">
-                        <span class="fa fa-line-chart"></span> 450KWH
-                    </div>
-                    <div class="stat-running">
-                        <span class="online"></span> 4
-                    </div>
-                    <div class="stat-devices">
-                        <span class="fa fa-microchip"></span> 10
-                    </div>
-                </div>
-            </div>
-            <div class="card room">
-                <img src="assets/images/673311-furniture/png/023-kitchen.png" class="room-icon" alt="bedroom"
-                    title="bedroom">
-                <h2>Kitchen</h2>
-                <div class="stats">
-                    <div class="stat-usage">
-                        <span class="fa fa-line-chart txt-red"></span> 450KWH
-                    </div>
-                    <div class="stat-running">
-                        <span class="online"></span> 4
-                    </div>
-                    <div class="stat-devices">
-                        <span class="fa fa-microchip"></span> 10
-                    </div>
-                </div>
-            </div>
-            <div class="card room">
-                <img src="assets/images/205649-furniture-color/png/bookcase.png" class="room-icon" alt="study"
-                    title="study">
-                <h2>Study room</h2>
-                <div class="stats">
-                    <div class="stat-usage">
-                        <span class="fa fa-line-chart txt-red"></span> 450KWH
-                    </div>
-                    <div class="stat-running">
-                        <span class="online"></span> 4
-                    </div>
-                    <div class="stat-devices">
-                        <span class="fa fa-microchip"></span> 10
-                    </div>
-                </div>
-            </div>
-            <div class="card room">
-                <img src="assets/images/205649-furniture-color/png/bookcase.png" class="room-icon" alt="study"
-                    title="study">
-                <h2>Study room</h2>
-                <div class="stats">
-                    <div class="stat-usage">
-                        <span class="fa fa-line-chart txt-red"></span> 450KWH
-                    </div>
-                    <div class="stat-running">
-                        <span class="online"></span> 4
-                    </div>
-                    <div class="stat-devices">
-                        <span class="fa fa-microchip"></span> 10
-                    </div>
-                </div>
-            </div>
-            <div class="card room add">
+            <div id="card-add-room" class="card room add">
                 <div class="img-selector">
                     <button class="btn btn-left">&lt;</button>
                     <img src="assets/images/673311-furniture/png/023-kitchen.png" class="room-icon" alt="room-icon" title="room-icon" />
@@ -126,70 +62,7 @@
             </div>
         </section>
         <section id="guest-rooms" class="rooms-guest">
-            <div class="card room">
-                <img src="assets/images/205649-furniture-color/png/bed-1.png" class="room-icon" alt="bedroom"
-                    title="bedroom">
-                <h2>Bedroom</h2>
-                <div class="stats">
-                    <div class="stat-usage">
-                        <span class="fa fa-line-chart"></span> 450KWH
-                    </div>
-                    <div class="stat-running">
-                        <span class="online"></span> 4
-                    </div>
-                    <div class="stat-devices">
-                        <span class="fa fa-microchip"></span> 10
-                    </div>
-                </div>
-            </div>
-            <div class="card room">
-                <img src="assets/images/673311-furniture/png/023-kitchen.png" class="room-icon" alt="bedroom"
-                    title="bedroom">
-                <h2>Kitchen</h2>
-                <div class="stats">
-                    <div class="stat-usage">
-                        <span class="fa fa-line-chart txt-red"></span> 450KWH
-                    </div>
-                    <div class="stat-running">
-                        <span class="online"></span> 4
-                    </div>
-                    <div class="stat-devices">
-                        <span class="fa fa-microchip"></span> 10
-                    </div>
-                </div>
-            </div>
-            <div class="card room">
-                <img src="assets/images/205649-furniture-color/png/bookcase.png" class="room-icon" alt="study"
-                    title="study">
-                <h2>Study room</h2>
-                <div class="stats">
-                    <div class="stat-usage">
-                        <span class="fa fa-line-chart txt-red"></span> 450KWH
-                    </div>
-                    <div class="stat-running">
-                        <span class="online"></span> 4
-                    </div>
-                    <div class="stat-devices">
-                        <span class="fa fa-microchip"></span> 10
-                    </div>
-                </div>
-            </div>
-            <div class="card room">
-                <img src="assets/images/205649-furniture-color/png/bookcase.png" class="room-icon" alt="study"
-                    title="study">
-                <h2>Study room</h2>
-                <div class="stats">
-                    <div class="stat-usage">
-                        <span class="fa fa-line-chart txt-red"></span> 450KWH
-                    </div>
-                    <div class="stat-running">
-                        <span class="online"></span> 4
-                    </div>
-                    <div class="stat-devices">
-                        <span class="fa fa-microchip"></span> 10
-                    </div>
-                </div>
-            </div>
+            
         </section>
     </section>
 
@@ -201,7 +74,39 @@
     <script>
         var roomCategory = 1, requestedToggle = false;
         var roomSelected = document.getElementById('room-selected'),
-            ownRooms = document.getElementById('own-rooms');
+            ownRooms = document.getElementById('own-rooms'),
+            btnAddRoom = document.getElementById('card-add-room');
+            roomArr = [
+            {
+                name: 'Kitchen', 
+                icon: 'assets/images/673311-furniture/png/023-kitchen.png'
+            },
+            {
+                name: 'Bedroom',
+                icon: 'assets/images/205649-furniture-color/png/bed-1.png'
+            },
+            {
+                name: 'Study',
+                icon: 'assets/images/205649-furniture-color/png/bookcase.png'
+            },
+            {
+                name: 'Kitchen', 
+                icon: 'assets/images/673311-furniture/png/023-kitchen.png'
+            },
+            {
+                name: 'Bedroom',
+                icon: 'assets/images/205649-furniture-color/png/bed-1.png'
+            },
+            {
+                name: 'Study',
+                icon: 'assets/images/205649-furniture-color/png/bookcase.png'
+            }
+        ];
+
+        for(let i = 0; i < roomArr.length; i++){
+            new Room(ownRooms, roomArr[i], true, btnAddRoom);
+        }
+
         function toggleRooms(category) {
             if (category !== roomCategory) {
 

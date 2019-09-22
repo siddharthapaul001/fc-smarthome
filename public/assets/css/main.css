@@ -1,3 +1,10 @@
+@keyframes animNew{
+    from{
+        opacity: 0;
+        width: 0;
+    }
+}
+
 html, body{
     margin:0;
     /* background-color: #41295a; */
@@ -60,20 +67,63 @@ nav li .submenu{
 .card{
     /* border-radius: 23px; */
     /* background-color: rgba(255, 255, 255, 0.3); */
-    width: 22%;
+    width: 94%;
     min-height: 200px;
     padding: 20px 0;
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     border-radius: 9px;
     position: relative;
-    margin: 1%;
+    margin: 3%;
     margin-top: 20px;
     vertical-align: top;
     cursor: pointer;
     transition: transform 300ms ease-in-out;
+}
+
+.card.new{
+    animation: animNew 900ms ease 1;
+}
+/* 
+.card:nth-child(4n+1){
+    margin-left: 2.5%;
+} */
+
+@media (min-width: 480px){
+    .card{
+        width: 47%;
+        margin: 1%; 
+        display: inline-flex;     
+    }
+}
+
+
+@media (min-width: 720px){
+    .card{
+        width: 31%;
+        margin: 1%; 
+        display: inline-flex;     
+    }
+    .card:nth-child(3n+1){
+        margin-left: 0.9%;
+    }
+}
+
+
+@media (min-width: 1024px){
+    .card{
+        width: 22%;
+        margin: 1%; 
+        display: inline-flex;     
+    }
+    .card:nth-child(3n+1){
+        margin-left: 1%;
+    }
+    .card:nth-child(4n+1){
+        margin-left: 3%;
+    }
 }
 
 .card:hover{
@@ -87,17 +137,14 @@ nav li .submenu{
     font-weight: 600;
 }
 
-.card:nth-child(4n+1){
-    margin-left: 2.5%;
-}
-
 .card.room{
-    background-color: rgba(255, 255, 255, 0.07);
+    background-color: rgba(255, 255, 255, 0.1);
     color: #fff;
 }
 
 .card.room.add{
     cursor: default;
+    transition: all 600ms ease;
 }
 
 .card.room.add:hover{
@@ -116,6 +163,7 @@ nav li .submenu{
     display: flex;
     font-size: small;
     justify-content: space-between;
+    align-items: center;
     border-top: 1px solid #ddd;
     color: #fafafa;
 }
@@ -133,6 +181,10 @@ nav li .submenu{
 
 .stat-usage{
     color: #ea8600;
+}
+
+.stat-usage::after{
+    content: 'KWH';
 }
 
 .stat-devices{

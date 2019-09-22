@@ -61,8 +61,10 @@
                     <button class="btn btn-add-room">+ Add room</button>
                 </div>
             </div>
-            <div id="room-inside" class="card room inside" onclick="closeRoom()" style="display: none;">
-
+            <div id="room-inside" class="card room inside" style="display: none;">
+                <div id="room-content" style="display: none">
+                    <button id="btn-close-room" class="btn btn-close" onclick="closeRoom()">Close</button>
+                </div>
             </div>
         </section>
         <section id="guest-rooms" class="rooms-guest">
@@ -82,6 +84,8 @@
             guestRooms = document.getElementById('guest-rooms'),
             btnAddRoom = document.getElementById('card-add-room'),
             roomInside = document.getElementById('room-inside'),
+            btnCloseRoom = document.getElementById('btn-close-room'),
+            roomContent = document.getElementById('room-content'),
             roomAttrs = [
                 {
                     name: 'Kitchen',
@@ -144,66 +148,74 @@
 
         function openRoom(selectedRoom, id) {
             let selectedRoomIdx, roomsContainer = roomCategory === 1 ? ownRooms : guestRooms;
-            requestAnimationFrame(() => {
-                roomsContainer.style.overflow = 'hidden';
 
-                let rect = selectedRoom.getBoundingClientRect(),
-                    styleStr = 'left:' + rect.left + 'px;top:' + rect.top + 'px;width:' + rect.width + 'px;height:' + (rect.height - 40) + 'px;';
-                roomInside.style = styleStr;
-                roomInside.setAttribute('data-init-style', styleStr);
-                btnAddRoom.style = 'display:none;';
+            if (!roomOpened) {
+                roomOpened = true;
 
-                setTimeout(() => {
-                    rooms[selectedRoomIdx].fadeIn();
-                    rect = roomsContainer.getBoundingClientRect();
-                    roomInside.style = 'left:' + (rect.left + 20) + 'px;top:' + (rect.top + 20) + 'px;width:' + (rect.width - 40) + 'px;height:' + (window.innerHeight - rect.top - 80) + 'px;';
-                }, 100);
+                requestAnimationFrame(() => {
+                    roomsContainer.style.overflow = 'hidden';
 
-            });
-            rooms.forEach((room, idx) => {
-                if (room._elem.root === selectedRoom) {
-                    //room.expand();
-                    room.isSelected = true;
-                    selectedRoomIdx = idx;
-                } else {
-                    room.hide(false);
-                }
-            });
-            roomOpened = true;
+                    let rect = selectedRoom.getBoundingClientRect(),
+                        styleStr = 'left:' + rect.left + 'px;top:' + rect.top + 'px;width:' + rect.width + 'px;height:' + (rect.height - 40) + 'px;';
+                    roomInside.style = styleStr;
+                    roomInside.setAttribute('data-init-style', styleStr);
+                    btnAddRoom.style = 'display:none;';
+
+                    setTimeout(() => {
+                        rooms[selectedRoomIdx].fadeIn();
+                        rect = roomsContainer.getBoundingClientRect();
+                        roomInside.style = 'left:' + (rect.left + 20) + 'px;top:' + (rect.top + 20) + 'px;width:' + (rect.width - 40) + 'px;height:' + (window.innerHeight - rect.top - 80) + 'px;';
+                        roomContent.style.display = 'block';
+                    }, 100);
+
+                });
+                rooms.forEach((room, idx) => {
+                    if (room._elem.root === selectedRoom) {
+                        //room.expand();
+                        room.isSelected = true;
+                        selectedRoomIdx = idx;
+                    } else {
+                        room.hide(false);
+                    }
+                });
+            }
         }
 
         function closeRoom() {
             let roomsContainer = roomCategory === 1 ? ownRooms : guestRooms;
-            requestAnimationFrame(() => {
+            if (roomOpened) {
+                requestAnimationFrame(() => {
 
-                roomsContainer.style.overflow = 'auto';
-                roomInside.style = roomInside.getAttribute('data-init-style');
+                    roomsContainer.style.overflow = 'auto';
+                    roomInside.style = roomInside.getAttribute('data-init-style');
+                    setTimeout(() => {
+                        requestAnimationFrame(() => {
+                            roomInside.style = 'opacity: 0;';
+                            rooms.forEach((room) => {
+                                if (room.isSelected) {
+                                    room.isSelected = false;
+                                    room.fadeOut(() => {
+                                        roomOpened = false;
+                                        roomInside.style = 'display:none;';
+                                        roomInside.removeAttribute('data-init-style');
+                                    });
+                                } else {
+                                    setTimeout(() => {
+                                        room.show();
+                                        roomContent.style.display = 'none';
+                                    }, 300);
+                                }
+                            });
+                        })
+                    }, 300);
+                });
+
                 setTimeout(() => {
                     requestAnimationFrame(() => {
-                        roomInside.style = 'opacity: 0;';
-                        rooms.forEach((room) => {
-                            if (room.isSelected) {
-                                room.isSelected = false;
-                                room.fadeOut(() => {
-                                    roomInside.style = 'display:none;';
-                                    roomInside.removeAttribute('data-init-style');
-                                });
-                            } else {
-                                setTimeout(() => {
-                                    room.show();
-                                }, 900);
-                            }
-                        });
-                    })
-                }, 300);
-            });
-
-            setTimeout(() => {
-                requestAnimationFrame(() => {
-                    btnAddRoom.removeAttribute('style');
-                });
-            }, 1800);
-            roomOpened = false;
+                        btnAddRoom.removeAttribute('style');
+                    });
+                }, 1800);
+            }
         }
 
         function initView() {

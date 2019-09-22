@@ -61,15 +61,16 @@
                     <button class="btn btn-add-room">+ Add room</button>
                 </div>
             </div>
-            <div id="room-inside" class="card room inside" style="display: none;">
-                <div id="room-content" style="display: none">
-                    <button id="btn-close-room" class="btn btn-close" onclick="closeRoom()">Close</button>
-                </div>
-            </div>
         </section>
         <section id="guest-rooms" class="rooms-guest">
 
         </section>
+
+        <div id="room-inside" class="card room inside" style="display: none;">
+            <div id="room-content" style="display: none">
+                <button id="btn-close-room" class="btn btn-close" onclick="closeRoom()">Close</button>
+            </div>
+        </div>
     </section>
 
     <!-- <footer>
@@ -127,6 +128,7 @@
 
         for (let i = 0; i < roomAttrs.length; i++) {
             rooms.push(new Room(ownRooms, roomAttrs[i], true, btnAddRoom));
+            rooms.push(new Room(guestRooms, roomAttrs[i], true));
         }
 
         function toggleRooms(category) {
@@ -190,7 +192,7 @@
                     roomInside.style = roomInside.getAttribute('data-init-style');
                     setTimeout(() => {
                         requestAnimationFrame(() => {
-                            roomInside.style = 'opacity: 0;';
+                            roomInside.style.opacity = 0;
                             rooms.forEach((room) => {
                                 if (room.isSelected) {
                                     room.isSelected = false;

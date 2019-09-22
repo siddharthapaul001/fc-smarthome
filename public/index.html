@@ -50,7 +50,8 @@
             <div id="card-add-room" class="card room add">
                 <div class="img-selector">
                     <button class="btn btn-left">&lt;</button>
-                    <img src="assets/images/673311-furniture/png/023-kitchen.png" class="room-icon" alt="room-icon" title="room-icon" />
+                    <img src="assets/images/673311-furniture/png/023-kitchen.png" class="room-icon" alt="room-icon"
+                        title="room-icon" />
                     <button class="btn btn-right">&gt;</button>
                 </div>
                 <div class="txt-room-name">
@@ -60,9 +61,12 @@
                     <button class="btn btn-add-room">+ Add room</button>
                 </div>
             </div>
+            <div id="room-inside" class="card room inside" onclick="closeRoom()" style="display: none;">
+
+            </div>
         </section>
         <section id="guest-rooms" class="rooms-guest">
-            
+
         </section>
     </section>
 
@@ -72,48 +76,64 @@
     </footer> -->
 
     <script>
-        var roomCategory = 1, requestedToggle = false;
+        var roomCategory = 1, requestedToggle = false, rooms = [], roomOpened = false;
         var roomSelected = document.getElementById('room-selected'),
             ownRooms = document.getElementById('own-rooms'),
-            btnAddRoom = document.getElementById('card-add-room');
-            roomArr = [
-            {
-                name: 'Kitchen', 
-                icon: 'assets/images/673311-furniture/png/023-kitchen.png'
-            },
-            {
-                name: 'Bedroom',
-                icon: 'assets/images/205649-furniture-color/png/bed-1.png'
-            },
-            {
-                name: 'Study',
-                icon: 'assets/images/205649-furniture-color/png/bookcase.png'
-            },
-            {
-                name: 'Kitchen', 
-                icon: 'assets/images/673311-furniture/png/023-kitchen.png'
-            },
-            {
-                name: 'Bedroom',
-                icon: 'assets/images/205649-furniture-color/png/bed-1.png'
-            },
-            {
-                name: 'Study',
-                icon: 'assets/images/205649-furniture-color/png/bookcase.png'
-            }
-        ];
+            guestRooms = document.getElementById('guest-rooms'),
+            btnAddRoom = document.getElementById('card-add-room'),
+            roomInside = document.getElementById('room-inside'),
+            roomAttrs = [
+                {
+                    name: 'Kitchen',
+                    icon: 'assets/images/673311-furniture/png/023-kitchen.png'
+                },
+                {
+                    name: 'Bedroom',
+                    icon: 'assets/images/205649-furniture-color/png/bed-1.png'
+                },
+                {
+                    name: 'Study',
+                    icon: 'assets/images/205649-furniture-color/png/bookcase.png'
+                },
+                {
+                    name: 'Kitchen',
+                    icon: 'assets/images/673311-furniture/png/023-kitchen.png'
+                },
+                {
+                    name: 'Bedroom',
+                    icon: 'assets/images/205649-furniture-color/png/bed-1.png'
+                },
+                {
+                    name: 'Study',
+                    icon: 'assets/images/205649-furniture-color/png/bookcase.png'
+                },
+                {
+                    name: 'Kitchen',
+                    icon: 'assets/images/673311-furniture/png/023-kitchen.png'
+                },
+                {
+                    name: 'Bedroom',
+                    icon: 'assets/images/205649-furniture-color/png/bed-1.png'
+                },
+                {
+                    name: 'Study',
+                    icon: 'assets/images/205649-furniture-color/png/bookcase.png'
+                }
+            ];
 
-        for(let i = 0; i < roomArr.length; i++){
-            new Room(ownRooms, roomArr[i], true, btnAddRoom);
+        for (let i = 0; i < roomAttrs.length; i++) {
+            rooms.push(new Room(ownRooms, roomAttrs[i], true, btnAddRoom));
         }
 
         function toggleRooms(category) {
             if (category !== roomCategory) {
-
+                if (roomOpened) {
+                    closeRoom();
+                }
                 if (!requestedToggle) {
                     requestAnimationFrame(() => {
                         roomSelected.setAttribute('style', 'left:' + ((roomCategory - 1) * 50) + '%;right:' + ((2 - roomCategory) * 50) + '%;');
-                        ownRooms.setAttribute('style', 'margin-left:-' + ((roomCategory - 1) * 100) + '%');
+                        ownRooms.style.marginLeft = '-' + ((roomCategory - 1) * 100) + '%';
                         requestedToggle = false;
                     });
                     requestedToggle = true;
@@ -122,12 +142,80 @@
             }
         }
 
-        function removeRoom(){
-            
-        }
-        function addRoom(){
+        function openRoom(selectedRoom, id) {
+            let selectedRoomIdx, roomsContainer = roomCategory === 1 ? ownRooms : guestRooms;
+            requestAnimationFrame(() => {
+                roomsContainer.style.overflow = 'hidden';
 
+                let rect = selectedRoom.getBoundingClientRect(),
+                    styleStr = 'left:' + rect.left + 'px;top:' + rect.top + 'px;width:' + rect.width + 'px;height:' + (rect.height - 40) + 'px;';
+                roomInside.style = styleStr;
+                roomInside.setAttribute('data-init-style', styleStr);
+                btnAddRoom.style = 'display:none;';
+
+                setTimeout(() => {
+                    rooms[selectedRoomIdx].fadeIn();
+                    rect = roomsContainer.getBoundingClientRect();
+                    roomInside.style = 'left:' + (rect.left + 20) + 'px;top:' + (rect.top + 20) + 'px;width:' + (rect.width - 40) + 'px;height:' + (window.innerHeight - rect.top - 80) + 'px;';
+                }, 100);
+
+            });
+            rooms.forEach((room, idx) => {
+                if (room._elem.root === selectedRoom) {
+                    //room.expand();
+                    room.isSelected = true;
+                    selectedRoomIdx = idx;
+                } else {
+                    room.hide(false);
+                }
+            });
+            roomOpened = true;
         }
+
+        function closeRoom() {
+            let roomsContainer = roomCategory === 1 ? ownRooms : guestRooms;
+            requestAnimationFrame(() => {
+
+                roomsContainer.style.overflow = 'auto';
+                roomInside.style = roomInside.getAttribute('data-init-style');
+                setTimeout(() => {
+                    requestAnimationFrame(() => {
+                        roomInside.style = 'opacity: 0;';
+                        rooms.forEach((room) => {
+                            if (room.isSelected) {
+                                room.isSelected = false;
+                                room.fadeOut(() => {
+                                    roomInside.style = 'display:none;';
+                                    roomInside.removeAttribute('data-init-style');
+                                });
+                            } else {
+                                setTimeout(() => {
+                                    room.show();
+                                }, 900);
+                            }
+                        });
+                    })
+                }, 300);
+            });
+
+            setTimeout(() => {
+                requestAnimationFrame(() => {
+                    btnAddRoom.removeAttribute('style');
+                });
+            }, 1800);
+            roomOpened = false;
+        }
+
+        function initView() {
+            requestAnimationFrame(() => {
+                ownRooms.setAttribute('style', 'max-height:' + (window.innerHeight - ownRooms.offsetTop - 20) + 'px;');
+                guestRooms.setAttribute('style', 'max-height:' + (window.innerHeight - ownRooms.offsetTop - 20) + 'px;');
+            });
+        }
+
+        (() => {
+            initView();
+        })();
     </script>
 </body>
 

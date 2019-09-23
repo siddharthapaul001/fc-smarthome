@@ -18,6 +18,18 @@
         <nav>
             <ul>
                 <li>
+                    <div class="toggle-container">
+                        <div class="toggle-wraper">
+                            <!-- <label>Access: </label> -->
+                            <div class="toggle-btn-wraper">
+                                <div id="room-selected" class="selected"></div>
+                                <button class="btn btn-toggle" onclick="toggleRooms(1)">OWNER</button>
+                                <button class="btn btn-toggle" onclick="toggleRooms(2)">GUEST</button>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li>
                     <a href="#">
                         <span class="fa fa-user"></span>
                         Hi, <span id="username">Siddhartha</span>
@@ -34,20 +46,9 @@
             </ul>
         </nav>
     </header>
-
-    <div class="toggle-container">
-        <div class="toggle-wraper">
-            <label>Allowed as: </label>
-            <div class="toggle-btn-wraper">
-                <div id="room-selected" class="selected"></div>
-                <button class="btn btn-toggle" onclick="toggleRooms(1)">OWNER</button>
-                <button class="btn btn-toggle" onclick="toggleRooms(2)">GUEST</button>
-            </div>
-        </div>
-    </div>
     <section class="rooms-container">
-        <section id="own-rooms" class="rooms-own">
-            <div id="card-add-room" class="card room add">
+        <section id="own-rooms" class="rooms-own scroll">
+            <!-- <div id="card-add-room" class="card room add">
                 <div class="img-selector">
                     <button class="btn btn-left">&lt;</button>
                     <img src="assets/images/673311-furniture/png/023-kitchen.png" class="room-icon" alt="room-icon"
@@ -60,15 +61,45 @@
                 <div class="stats">
                     <button class="btn btn-add-room">+ Add room</button>
                 </div>
-            </div>
+            </div> -->
         </section>
-        <section id="guest-rooms" class="rooms-guest">
+        <section id="guest-rooms" class="rooms-guest scroll">
 
         </section>
 
-        <div id="room-inside" class="card room inside" style="display: none;">
-            <div id="room-content" style="display: none">
-                <button id="btn-close-room" class="btn btn-close" onclick="closeRoom()">Close</button>
+        <div id="room-inside" class="room-inside" style="display: none;">
+            <div id="room-content" style="display:none;">
+                <div class="in-room-btns clearfix">
+                    <span id="room-name" class="room-name"></span>
+                    <button id="btn-close-room" class="btn btn-close" onclick="closeRoom()"><span
+                            class="fa fa-2x fa-remove"></span></button>
+                </div>
+                <div id="equipments" class="equipments">
+                    <div class="equipment off">
+
+                    </div>
+                    <div class="equipment on">
+
+                    </div>
+                    <div class="equipment off">
+
+                    </div>
+                    <div class="equipment off">
+
+                    </div>
+                    <div class="equipment">
+
+                    </div>
+                    <div class="equipment off">
+
+                    </div>
+                    <div class="equipment off">
+
+                    </div>
+                    <div class="equipment">
+
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -79,14 +110,15 @@
     </footer> -->
 
     <script>
-        var roomCategory = 1, requestedToggle = false, rooms = [], roomOpened = false;
+        var roomCategory = 1, requestedToggle = false, rooms = [], equipments = [], roomOpened = false;
         var roomSelected = document.getElementById('room-selected'),
             ownRooms = document.getElementById('own-rooms'),
             guestRooms = document.getElementById('guest-rooms'),
-            btnAddRoom = document.getElementById('card-add-room'),
+            //btnAddRoom = document.getElementById('card-add-room'),
             roomInside = document.getElementById('room-inside'),
             btnCloseRoom = document.getElementById('btn-close-room'),
             roomContent = document.getElementById('room-content'),
+            equipmentContainer = document.getElementById('equipments'),
             roomAttrs = [
                 {
                     name: 'Kitchen',
@@ -123,11 +155,22 @@
                 {
                     name: 'Study',
                     icon: 'assets/images/205649-furniture-color/png/bookcase.png'
+                },
+                {
+                    name: 'Bedroom',
+                    icon: 'assets/images/205649-furniture-color/png/bed-1.png'
+                },
+                {
+                    name: 'Study',
+                    icon: 'assets/images/205649-furniture-color/png/bookcase.png'
                 }
             ];
 
-        for (let i = 0; i < roomAttrs.length; i++) {
-            rooms.push(new Room(ownRooms, roomAttrs[i], true, btnAddRoom));
+        for (let i = roomAttrs.length - 1; i--;) {
+            rooms.push(new Room(ownRooms, roomAttrs[i], true));
+        }
+
+        for (let i = roomAttrs.length - 3; i--;) {
             rooms.push(new Room(guestRooms, roomAttrs[i], true));
         }
 
@@ -156,18 +199,20 @@
 
                 requestAnimationFrame(() => {
                     roomsContainer.style.overflow = 'hidden';
-
                     let rect = selectedRoom.getBoundingClientRect(),
                         styleStr = 'left:' + rect.left + 'px;top:' + rect.top + 'px;width:' + rect.width + 'px;height:' + (rect.height - 40) + 'px;';
                     roomInside.style = styleStr;
                     roomInside.setAttribute('data-init-style', styleStr);
-                    btnAddRoom.style = 'display:none;';
+                    //btnAddRoom.style = 'display:none;';
 
                     setTimeout(() => {
                         rooms[selectedRoomIdx].fadeIn();
-                        rect = roomsContainer.getBoundingClientRect();
-                        roomInside.style = 'left:' + (rect.left + 20) + 'px;top:' + (rect.top + 20) + 'px;width:' + (rect.width - 40) + 'px;height:' + (window.innerHeight - rect.top - 80) + 'px;';
-                        roomContent.style.display = 'block';
+                        requestAnimationFrame(() => {
+                            rect = roomsContainer.getBoundingClientRect();
+                            roomInside.style = 'left:' + (rect.left + 20) + 'px;top:' + (rect.top + 20) + 'px;width:' + (rect.width - 40) + 'px;height:' + (window.innerHeight - rect.top - 40) + 'px;';
+                            roomContent.style.display = 'block';
+                            document.getElementById('room-name').innerHTML = rooms[selectedRoomIdx]._attr.name;
+                        });
                     }, 100);
 
                 });
@@ -209,12 +254,6 @@
                         })
                     }, 300);
                 });
-
-                setTimeout(() => {
-                    requestAnimationFrame(() => {
-                        btnAddRoom.removeAttribute('style');
-                    });
-                }, 600);
             }
         }
 
@@ -224,7 +263,6 @@
                 guestRooms.setAttribute('style', 'max-height:' + (window.innerHeight - ownRooms.offsetTop - 20) + 'px;');
             });
         }
-
         (() => {
             initView();
         })();

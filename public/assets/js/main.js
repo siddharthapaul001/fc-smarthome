@@ -154,7 +154,7 @@ class Room extends Root {
         //Append Room DOM into HTML DOM
         if (!isUpdate) {
             if (beforeElem instanceof HTMLElement) {
-                this._elem.parent.insertBefore(this._elem.root, beforeElem);
+                this._elem.parent.appendChild(this._elem.root);
             } else {
                 this._elem.parent.appendChild(this._elem.root);
             }
@@ -163,8 +163,24 @@ class Room extends Root {
 }
 
 class Device extends Root {
-    constructor() {
-        super();
+    constructor(parent, attr, uiOnly, beforeElem) {
+        super(parent);
+        //uiOnly means no request to Server update / create UI only
+        this._attr.name = attr.name || this._attr.name;
+        this._attr.iconSrc = attr.icon || this._attr.iconSrc;
+        this._attr.isNew = attr.isNew;
+        this._elem.beforeElem = beforeElem;
+        this.render(false);
+    }
 
+    update(attr, uiOnly) {
+        //code to update on server
+        this._attr.name = attr.name || this._attr.name; //saniized name from server
+        this._attr.iconSrc = attr.icon || this._attr.iconSrc; //sanitized icon src from server
+        this.render(true);
+    }
+
+    _draw(isUpdate) {
+        
     }
 }

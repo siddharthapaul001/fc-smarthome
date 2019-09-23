@@ -46,11 +46,21 @@ nav a{
     color: #fafafa;
     text-decoration: none;
     font-weight: 600;
-    font-size: 24px;
+    font-size: small;
+}
+
+@media (min-width: 768px){
+    nav a{
+        font-size: large;
+    }
 }
 
 nav ul{
     text-align: right;
+}
+
+nav li{
+    vertical-align: middle;
 }
 
 nav li .submenu{
@@ -160,15 +170,6 @@ nav li .submenu{
     margin:0;
 }
 
-.card.inside{
-    position: fixed;
-    display: flex;
-    margin: 0 auto;
-}
-.card.inside:hover{
-    transform: none;
-}
-
 .card.room{
     background-color: rgba(255, 255, 255, 0.1);
     color: #fff;
@@ -196,7 +197,7 @@ nav li .submenu{
     font-size: small;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid #141835;
     color: #fafafa;
 }
 
@@ -269,6 +270,8 @@ nav li .submenu{
 .btn-toggle{
     padding: 10px 15px;
     z-index: 20;
+    font-size: xx-small;
+    font-weight: 600;
 }
 
 .toggle-btn-wraper .selected{
@@ -332,3 +335,78 @@ nav li .submenu{
     background-color: #477201;
     border-color: #477201;
 }
+
+
+.room-inside{
+    position: fixed;
+    border-radius: 9px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transition: all 300ms ease-in-out;
+}
+
+.room-inside .in-room-btns{
+    text-align: right;
+    border-bottom: 1px solid #141835;
+}
+
+.btn-close{
+    background: transparent;
+    border-color: transparent;
+    padding: 7px;
+}
+
+.clearfix:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+}
+
+.room-name{
+    display: inline-block;
+    float: left;
+    padding: 10px 15px;
+}
+
+.equipments{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    padding: 20px;
+}
+
+.equipment{
+    width: 180px;
+    height: 180px;
+    border: 10px solid #1c90dd;
+    border-radius: 95px;
+    background-color: rgba(255, 255, 255, 0.07);
+    box-sizing: border-box;
+}
+
+.equipment.off{
+    border-color: #ea8600;
+}
+
+.equipment.on{
+    border-color:#477201;
+}
+
+/* Component custom scroll */
+@media (min-width: 768px){
+.scroll::-webkit-scrollbar {
+    width: 5px;
+  }
+   
+  .scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+   
+  .scroll::-webkit-scrollbar-thumb {
+    background: #666; 
+  }
+}
+  /* End of scroll component */

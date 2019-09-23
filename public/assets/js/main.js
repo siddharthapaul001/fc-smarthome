@@ -40,7 +40,7 @@ class Root {
         });
     }
 
-    hide(removeSpace) {
+    hide(removeSpace, doDelete) {
         if (!this._requestedHide) {
             requestAnimationFrame(() => {
                 this._elem.root.style = 'animation:animHide 300ms ease 1;opacity:0;transform:scale(0)';
@@ -49,7 +49,11 @@ class Root {
                         this._elem.root.classList.add('hidden');
                         setTimeout(() => {
                             requestAnimationFrame(() => {
-                                this._elem.root.style = 'display: none;';
+                                if (doDelete) {
+                                    this._elem.root.parentNode.removeChild(this._elem.root);
+                                } else {
+                                    this._elem.root.style = 'display: none;';
+                                }
                             });
                         }, 300);
                     }, 300);
@@ -181,6 +185,5 @@ class Device extends Root {
     }
 
     _draw(isUpdate) {
-        
     }
 }

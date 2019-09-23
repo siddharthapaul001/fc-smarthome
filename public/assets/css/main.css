@@ -350,10 +350,13 @@ nav li .submenu{
     border-bottom: 1px solid #141835;
 }
 
-.btn-close{
+.in-room-btns .btn{
     background: transparent;
     border-color: transparent;
     padding: 7px;
+}
+
+.btn-close{
 }
 
 .clearfix:after {
@@ -372,27 +375,45 @@ nav li .submenu{
 }
 
 .equipments{
-    display: flex;
     flex-wrap: wrap;
-    justify-content: space-evenly;
-    padding: 20px;
+    transition: all 900ms ease;
 }
 
 .equipment{
-    width: 180px;
-    height: 180px;
-    border: 10px solid #1c90dd;
-    border-radius: 95px;
+    display: inline-block;
+    min-width: 98%;
+    min-height: 200px;
+    border-radius: 5px;
+    /* border: 1px solid #1c90dd; */
     background-color: rgba(255, 255, 255, 0.07);
+    /* box-shadow: 0 0 10px #1c90dd; */
     box-sizing: border-box;
+    margin:20px 0;
+}
+
+.equipment:nth-child(5n + 1){
+    margin-left: 1%;
+}
+
+@media (min-width: 1024px){
+    .equipment{
+        min-width: 16%;
+        margin: 20px 1%;
+    }
+
+    .equipment:nth-child(5n + 1){
+        margin-left: 4%;
+    }
 }
 
 .equipment.off{
     border-color: #ea8600;
+    /* box-shadow: 0 0 10px #ea8600; */
 }
 
 .equipment.on{
     border-color:#477201;
+    /* box-shadow: 0 0 10px #477201; */
 }
 
 /* Component custom scroll */

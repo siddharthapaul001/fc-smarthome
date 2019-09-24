@@ -78,100 +78,9 @@
                             class="fa fa-2x fa-remove"></span></button>
                 </div>
                 <div class="equipments">
-                    <div id="equipments" class="equipments-wraper scroll" style="opacity: 0;">
+                    <div id="equipments" class="equipments-wraper scroll" style="opacity: 0;overflow: hidden;">
 
-                        <div class="equipment off">
-                            <div class="equipment-head">
-                                <!-- <span class="fa fa-lightbulb-o"></span> -->
-                                <h3>Bulb</h3>
-                                <button class="btn btn-remove" onclick="removeEquipment(this)">
-                                    <span class="fa fa-trash"></span>
-                                </button>
-                            </div>
-                            <div class="equipment-body">
-                                <div class="switch-container">
-                                    <div class="selected"></div>
-                                    <button class="btn btn-toggle">ON</button>
-                                    <button class="btn btn-toggle">OFF</button>
-                                </div>
-                            </div>
-                            <div class="equipment-stats">
-                                <!-- <span class="fa fa-lightbulb-o"></span> -->
-                                <div class="stat-usage">
-                                    <span class="fa fa-line-chart"></span> 0
-                                </div>
-                                <div class="stat-online">
-                                    <span class="fa fa-clock-o"></span> 0
-                                </div>
-                            </div>
-                        </div>
-                        <div class="equipment off">
-                            <div class="equipment-head">
-                                <!-- <span class="fa fa-lightbulb-o"></span> -->
-                                <h3>AC</h3>
-                                <button class="btn btn-remove" onclick="removeEquipment(this)">
-                                    <span class="fa fa-trash"></span>
-                                </button>
-                            </div>
-                            <div id="regulator-test" class="equipment-body">
-
-                            </div>
-                            <div class="equipment-stats">
-                                <!-- <span class="fa fa-lightbulb-o"></span> -->
-                                <div class="stat-usage">
-                                    <span class="fa fa-line-chart"></span> 0
-                                </div>
-                                <div class="stat-online">
-                                    <span class="fa fa-clock-o"></span> 0
-                                </div>
-                            </div>
-                        </div>
-                        <div class="equipment off">
-                            <div class="equipment-head">
-                                <!-- <span class="fa fa-lightbulb-o"></span> -->
-                                <h3>Bulb</h3>
-                                <button class="btn btn-remove" onclick="removeEquipment(this)">
-                                    <span class="fa fa-trash"></span>
-                                </button>
-                            </div>
-                            <div class="equipment-body">
-                                <div class="switch-container">
-                                    <div class="selected"></div>
-                                    <button class="btn btn-toggle">ON</button>
-                                    <button class="btn btn-toggle">OFF</button>
-                                </div>
-                            </div>
-                            <div class="equipment-stats">
-                                <!-- <span class="fa fa-lightbulb-o"></span> -->
-                                <div class="stat-usage">
-                                    <span class="fa fa-line-chart"></span> 0
-                                </div>
-                                <div class="stat-online">
-                                    <span class="fa fa-clock-o"></span> 0
-                                </div>
-                            </div>
-                        </div>
-                        <!-- <div class="equipment on">
-
-                        </div>
-                        <div class="equipment off">
-
-                        </div>
-                        <div class="equipment off">
-
-                        </div>
-                        <div class="equipment">
-
-                        </div>
-                        <div class="equipment off">
-
-                        </div>
-                        <div class="equipment off">
-
-                        </div>
-                        <div class="equipment">
-
-                        </div> -->
+                        
                     </div>
                 </div>
             </div>
@@ -198,9 +107,7 @@
     </footer> -->
 
     <script>
-        var roomCategory = 1, requestedToggle = false, rooms = [], equipments = [], roomOpened = false;
-        //temp
-        var r;
+        var roomCategory = 1, requestedToggle = false, rooms = [], equipments = [], roomOpened = false, devices = [];
         var roomSelected = document.getElementById('room-selected'),
             ownRooms = document.getElementById('own-rooms'),
             guestRooms = document.getElementById('guest-rooms'),
@@ -254,6 +161,23 @@
                     name: 'Study',
                     icon: 'assets/images/205649-furniture-color/png/bookcase.png'
                 }
+            ], deviceAttrs = [
+                {
+                    name: 'Bulb',
+                    isRegulator: false
+                },
+                {
+                    name: 'AC',
+                    isRegulator: true
+                },
+                {
+                    name: 'Fan',
+                    isRegulator: true
+                },
+                {
+                    name: 'Light',
+                    isRegulator: false
+                }
             ];
 
         for (let i = roomAttrs.length - 1; i--;) {
@@ -262,6 +186,10 @@
 
         for (let i = roomAttrs.length - 3; i--;) {
             rooms.push(new Room(guestRooms, roomAttrs[i], true));
+        }
+
+        for(let i = deviceAttrs.length - 1; i >= 0 ;i--){
+            devices.push(new Device(equipmentContainer, deviceAttrs[i]));
         }
 
         function toggleRooms(category) {
@@ -330,6 +258,7 @@
             if (roomOpened) {
                 requestAnimationFrame(() => {
                     equipmentContainer.style.opacity = 0;
+                    equipmentContainer.style.overflow = 'hidden';
                     setTimeout(() => {
                         requestAnimationFrame(() => {
                             roomsContainer.style.overflow = 'auto';
@@ -366,12 +295,6 @@
         }
         (() => {
             initView();
-            //Created to test only
-            r = new Regulator(
-                document.getElementById('regulator-test'),
-                140, '#1c90dd', '#aaa', '#aaa', '#477201', 10, 2
-            );
-            r.setValue(72);
         })();
     </script>
 </body>

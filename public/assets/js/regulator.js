@@ -1,5 +1,5 @@
 class Regulator {
-    constructor(parent, side, color, nobColor, scaleColor, setScaleColor, scale = 10, scaleWidth = 2) {
+    constructor(parent, side, color, nobColor, scaleColor, setScaleColor, scale = 10, scaleWidth = 2, cb) {
         this._elem = {};
         this._attr = {};
         this._attr.scale = scale;
@@ -12,6 +12,10 @@ class Regulator {
         this._elem.parent = parent;
         this.value = 0;
         this._requestedAnimationFrame = false;
+
+        if(typeof cb === 'function'){
+            this.cb = cb;
+        }
 
         requestAnimationFrame(() => {
             this._createRegulator(parent, side, color, nobColor, scaleColor, scale, scaleWidth);
@@ -104,6 +108,9 @@ class Regulator {
                 }
             });
             this.setValue(selectedIdx * 100 / this._attr.scale);
+            if(this.cb){
+                this.cb(this.value);
+            }
         });
 
         this._elem.regulator = g;

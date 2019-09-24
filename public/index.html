@@ -10,6 +10,7 @@
     <link rel="stylesheet" type="text/css" href="assets/css/main.css">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <script src="assets/js/regulator.js"></script>
     <script src="assets/js/main.js"></script>
 </head>
 
@@ -76,13 +77,81 @@
                     <button id="btn-close-room" class="btn btn-close" onclick="closeRoom()"><span
                             class="fa fa-2x fa-remove"></span></button>
                 </div>
-                <div class="equipments scroll">
-                    <div id="equipments" class="equipments-wraper" style="display: none">
+                <div class="equipments">
+                    <div id="equipments" class="equipments-wraper scroll" style="opacity: 0;">
 
                         <div class="equipment off">
-
+                            <div class="equipment-head">
+                                <!-- <span class="fa fa-lightbulb-o"></span> -->
+                                <h3>Bulb</h3>
+                                <button class="btn btn-remove" onclick="removeEquipment(this)">
+                                    <span class="fa fa-trash"></span>
+                                </button>
+                            </div>
+                            <div class="equipment-body">
+                                <div class="switch-container">
+                                    <div class="selected"></div>
+                                    <button class="btn btn-toggle">ON</button>
+                                    <button class="btn btn-toggle">OFF</button>
+                                </div>
+                            </div>
+                            <div class="equipment-stats">
+                                <!-- <span class="fa fa-lightbulb-o"></span> -->
+                                <div class="stat-usage">
+                                    <span class="fa fa-line-chart"></span> 0
+                                </div>
+                                <div class="stat-online">
+                                    <span class="fa fa-clock-o"></span> 0
+                                </div>
+                            </div>
                         </div>
-                        <div class="equipment on">
+                        <div class="equipment off">
+                            <div class="equipment-head">
+                                <!-- <span class="fa fa-lightbulb-o"></span> -->
+                                <h3>AC</h3>
+                                <button class="btn btn-remove" onclick="removeEquipment(this)">
+                                    <span class="fa fa-trash"></span>
+                                </button>
+                            </div>
+                            <div id="regulator-test" class="equipment-body">
+
+                            </div>
+                            <div class="equipment-stats">
+                                <!-- <span class="fa fa-lightbulb-o"></span> -->
+                                <div class="stat-usage">
+                                    <span class="fa fa-line-chart"></span> 0
+                                </div>
+                                <div class="stat-online">
+                                    <span class="fa fa-clock-o"></span> 0
+                                </div>
+                            </div>
+                        </div>
+                        <div class="equipment off">
+                            <div class="equipment-head">
+                                <!-- <span class="fa fa-lightbulb-o"></span> -->
+                                <h3>Bulb</h3>
+                                <button class="btn btn-remove" onclick="removeEquipment(this)">
+                                    <span class="fa fa-trash"></span>
+                                </button>
+                            </div>
+                            <div class="equipment-body">
+                                <div class="switch-container">
+                                    <div class="selected"></div>
+                                    <button class="btn btn-toggle">ON</button>
+                                    <button class="btn btn-toggle">OFF</button>
+                                </div>
+                            </div>
+                            <div class="equipment-stats">
+                                <!-- <span class="fa fa-lightbulb-o"></span> -->
+                                <div class="stat-usage">
+                                    <span class="fa fa-line-chart"></span> 0
+                                </div>
+                                <div class="stat-online">
+                                    <span class="fa fa-clock-o"></span> 0
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="equipment on">
 
                         </div>
                         <div class="equipment off">
@@ -102,12 +171,26 @@
                         </div>
                         <div class="equipment">
 
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <div class="modal-container">
+        <div class="modal">
+            <div id="modal-head" class="modal-head">
+
+            </div>
+            <div id="modal-body" class="modal-body">
+
+            </div>
+            <div id="modal-footer" class="modal-footer">
+
+            </div>
+        </div>
+    </div>
 
     <!-- <footer>
         <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a
@@ -116,6 +199,8 @@
 
     <script>
         var roomCategory = 1, requestedToggle = false, rooms = [], equipments = [], roomOpened = false;
+        //temp
+        var r;
         var roomSelected = document.getElementById('room-selected'),
             ownRooms = document.getElementById('own-rooms'),
             guestRooms = document.getElementById('guest-rooms'),
@@ -205,18 +290,25 @@
                 requestAnimationFrame(() => {
                     roomsContainer.style.overflow = 'hidden';
                     let rect = selectedRoom.getBoundingClientRect(),
-                        styleStr = 'left:' + rect.left + 'px;top:' + rect.top + 'px;width:' + rect.width + 'px;height:' + (rect.height - 40) + 'px;';
+                        styleStr = 'left:' + rect.left + 'px;top:' + rect.top + 'px;';//width:' + rect.width + 'px;height:' + (rect.height - 40) + 'px;';
                     roomInside.style = styleStr;
                     roomInside.setAttribute('data-init-style', styleStr);
+
                     //btnAddRoom.style = 'display:none;';
 
                     setTimeout(() => {
                         rooms[selectedRoomIdx].fadeIn();
                         requestAnimationFrame(() => {
                             rect = roomsContainer.getBoundingClientRect();
-                            roomInside.style = 'left:' + (rect.left + 20) + 'px;top:' + (rect.top + 20) + 'px;width:' + (rect.width - 40) + 'px;height:' + (window.innerHeight - rect.top - 40) + 'px;';
+                            roomInside.style = 'left:1%;top:' + (rect.top + 20) + 'px;width:98%;height:' + (window.innerHeight - rect.top - 40) + 'px;';
                             roomContent.style.display = 'block';
                             document.getElementById('room-name').innerHTML = rooms[selectedRoomIdx]._attr.name;
+                            setTimeout(() => {
+                                requestAnimationFrame(() => {
+                                    equipmentContainer.setAttribute('style', 'height:' + (roomInside.offsetHeight - 50) + 'px; opacity:1;');
+                                    //equipmentContainer.style.opacity = 1;
+                                });
+                            }, 300);
                         });
                     }, 100);
 
@@ -237,26 +329,30 @@
             let roomsContainer = roomCategory === 1 ? ownRooms : guestRooms;
             if (roomOpened) {
                 requestAnimationFrame(() => {
-
-                    roomsContainer.style.overflow = 'auto';
-                    roomInside.style = roomInside.getAttribute('data-init-style');
+                    equipmentContainer.style.opacity = 0;
                     setTimeout(() => {
                         requestAnimationFrame(() => {
-                            roomInside.style.opacity = 0;
-                            rooms.forEach((room) => {
-                                if (room.isSelected) {
-                                    room.isSelected = false;
-                                    room.fadeOut(() => {
-                                        roomOpened = false;
-                                        roomInside.style = 'display:none;';
-                                        roomInside.removeAttribute('data-init-style');
+                            roomsContainer.style.overflow = 'auto';
+                            roomInside.style = roomInside.getAttribute('data-init-style');
+                            setTimeout(() => {
+                                requestAnimationFrame(() => {
+                                    roomInside.style.opacity = 0;
+                                    rooms.forEach((room) => {
+                                        if (room.isSelected) {
+                                            room.isSelected = false;
+                                            room.fadeOut(() => {
+                                                roomOpened = false;
+                                                roomInside.style = 'display:none;';
+                                                roomInside.removeAttribute('data-init-style');
+                                            });
+                                        } else {
+                                            room.show();
+                                            roomContent.style.display = 'none';
+                                        }
                                     });
-                                } else {
-                                    room.show();
-                                    roomContent.style.display = 'none';
-                                }
-                            });
-                        })
+                                })
+                            }, 300);
+                        });
                     }, 300);
                 });
             }
@@ -270,6 +366,12 @@
         }
         (() => {
             initView();
+            //Created to test only
+            r = new Regulator(
+                document.getElementById('regulator-test'),
+                140, '#1c90dd', '#aaa', '#aaa', '#477201', 10, 2
+            );
+            r.setValue(72);
         })();
     </script>
 </body>

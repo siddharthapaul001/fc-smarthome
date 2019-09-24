@@ -8,6 +8,7 @@ class Regulator {
         this._attr.scaleColor = scaleColor;
         this._attr.setScaleColor = setScaleColor;
         this._elem.lines = [];
+        this._attr.lines = [];
         this._elem.parent = parent;
         this.value = 0;
         this._requestedAnimationFrame = false;
@@ -22,18 +23,22 @@ class Regulator {
         this.value = +val >= 0 ? val : this.value;
         if (!this._requestedAnimationFrame) {
             requestAnimationFrame(() => {
-                this._requestedAnimationFrame = false;
-                let val = this.value,
-                    deg = 180 * val / 100,
-                    c = this._attr.regulatorCenter, strokeColor;
-                for (let i = 0; i <= this._attr.scale; i++) {
-                    strokeColor = i <= this._attr.scale * val / 100 ? this._attr.setScaleColor : this._attr.scaleColor;
-                    this._elem.lines[i].setAttribute('stroke', strokeColor);
-                }
-                this._elem.regulator.setAttribute('transform', 'rotate(' + deg + ',' + c + ',' + c + ')');
+                this._renderValue();
             });
             this._requestedAnimationFrame = true;
         }
+    }
+
+    _renderValue() {
+        this._requestedAnimationFrame = false;
+        let val = this.value,
+            deg = 180 * val / 100,
+            c = this._attr.regulatorCenter, strokeColor;
+        for (let i = 0; i <= this._attr.scale; i++) {
+            strokeColor = i <= this._attr.scale * val / 100 ? this._attr.setScaleColor : this._attr.scaleColor;
+            this._elem.lines[i].setAttribute('stroke', strokeColor);
+        }
+        this._elem.regulator.setAttribute('transform', 'rotate(' + deg + ',' + c + ',' + c + ')');
     }
 
     _createRegulator(parent, side, color, nobColor, scaleColor, scale, scaleWidth) {
@@ -48,11 +53,11 @@ class Regulator {
 
         svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
         svg.setAttribute('width', side);
-        svg.setAttribute('height', side);
+        svg.setAttribute('height', side / 2);
         rect.setAttribute('x', 0.2 * side);
-        rect.setAttribute('y', c - (sideIn * 0.005));
-        rect.setAttribute('width', c * 0.6);
-        rect.setAttribute('height', sideIn * 0.01);
+        rect.setAttribute('y', c - (sideIn * 0.02));
+        rect.setAttribute('width', c * 0.2);
+        rect.setAttribute('height', sideIn * 0.04);
         rect.setAttribute('fill', nobColor);
         circle.setAttribute('cx', c);
         circle.setAttribute('cy', c);
@@ -71,6 +76,10 @@ class Regulator {
             line.setAttribute('y1', c - y);
             line.setAttribute('y2', c - y2);
             this._elem.lines.push(line);
+            this._attr.lines.push({
+                x: c - x,
+                y: c - y
+            });
             // dot.setAttribute('r', '2');
             // dot.setAttribute('cx', c-x);
             // dot.setAttribute('cy', c-y);
@@ -82,9 +91,25 @@ class Regulator {
         g.appendChild(rect);
         svg.appendChild(g);
 
+        //Need to fix
+        svg.addEventListener('click', (e) => {
+            let selectedIdx = 0, minDist;
+            let rect = this._elem.svg.getBoundingClientRect();
+            this._attr.lines.forEach((line, idx) => {
+                let x = e.clientX - rect.x - line.x, y = e.clientY - rect.y - line.y,
+                    dist = x * x + y * y;
+                if (!minDist || dist < minDist) {
+                    minDist = dist;
+                    selectedIdx = idx;
+                }
+            });
+            this.setValue(selectedIdx * 100 / this._attr.scale);
+        });
+
         this._elem.regulator = g;
         this._elem.svg = svg;
         this._attr.regulatorCenter = c;
+        this._renderValue();
         parent.appendChild(svg);
     }
 }

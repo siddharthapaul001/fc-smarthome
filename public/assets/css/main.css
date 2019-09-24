@@ -482,13 +482,13 @@ nav li .submenu{
     align-items: center;
 }
 
-@media (min-width: 360px){
+@media (min-width: 480px){
     .equipment{
         min-width: 46%;
         margin: 20px 1%;
     }
 
-    .equipment:nth-child(5n + 1){
+    .equipment:nth-child(2n + 1){
         margin-left: 2%;
     }
 }
@@ -499,7 +499,11 @@ nav li .submenu{
         margin: 20px 1%;
     }
 
-    .equipment:nth-child(5n + 1){
+    .equipment:nth-child(2n + 1){
+        margin-left: 1%;
+    }
+
+    .equipment:nth-child(3n + 1){
         margin-left: 2%;
     }
 }
@@ -510,8 +514,12 @@ nav li .submenu{
         margin: 20px 1%;
     }
 
-    .equipment:nth-child(5n + 1){
-        margin-left: 4%;
+    .equipment:nth-child(3n + 1){
+        margin-left: 1%;
+    }
+
+    .equipment:nth-child(4n + 1){
+        margin-left: 2.5%;
     }
 }
 

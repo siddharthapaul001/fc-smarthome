@@ -49,9 +49,16 @@ nav a{
     font-size: small;
 }
 
+nav a.btn{
+    padding: 2px 10px;
+}
+
 @media (min-width: 768px){
     nav a{
         font-size: large;
+    }
+    nav a.btn{
+        font-size: medium;
     }
 }
 
@@ -171,6 +178,7 @@ nav li .submenu{
 }
 
 .card.room{
+    position: relative;
     background-color: rgba(255, 255, 255, 0.1);
     color: #fff;
 }
@@ -186,6 +194,18 @@ nav li .submenu{
 
 .room-icon{
     width: 25%;
+}
+
+.room-add{
+    padding-top: 15px;
+}
+
+.room .btn-remove{
+    background-color: transparent;
+    border-color: transparent;
+    position: absolute;
+    right: 10px;
+    top: 10px;
 }
 
 .stats{
@@ -257,9 +277,9 @@ nav li .submenu{
 }
 
 .inp{
-    background-color: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    padding: 5px 10px;
+    background-color: transparent;
+    border: transparent;
+    color: #fafafa;
 }
 
 .btn:focus, .inp:focus{
@@ -306,17 +326,26 @@ nav li .submenu{
     right: 0;
 }
 
-.txt-room-name{
+.txt-room-name, .txt-device-name{
     margin-top: 10px;
     text-align: center;
 }
 
-.txt-room-name .inp{
+.txt-room-name .inp, .txt-device-name .inp{
     color: #fff;
     font-size: large;
     font-weight: 500;
     text-align: center;
     max-width:80%;
+}
+
+.txt-device-type{
+    padding: 10px 12px;
+}
+
+.txt-device-type > *{
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .btn-add-room{
@@ -412,13 +441,20 @@ nav li .submenu{
 .equipment{
     display: inline-block;
     vertical-align: top;
-    min-width: 90%;
+    padding:0;
+    height: auto;
+    width: 90%;
     border-radius: 5px;
     background-color: rgba(255, 255, 255, 0.07);
     box-sizing: border-box;
     margin:20px 0;
     margin-left: 5%;
 }
+
+.equipment:hover{
+    transform: none;
+}
+
 
 .equipment-head, .equipment-stats{
     padding: 7px 9px;
@@ -484,7 +520,7 @@ nav li .submenu{
 
 @media (min-width: 480px){
     .equipment{
-        min-width: 46%;
+        width: 46%;
         margin: 20px 1%;
     }
 
@@ -495,7 +531,7 @@ nav li .submenu{
 
 @media (min-width: 768px){
     .equipment{
-        min-width: 30%;
+        width: 30%;
         margin: 20px 1%;
     }
 
@@ -510,7 +546,7 @@ nav li .submenu{
 
 @media (min-width: 1024px){
     .equipment{
-        min-width: 22%;
+        width: 22%;
         margin: 20px 1%;
     }
 
@@ -558,7 +594,7 @@ nav li .submenu{
     top:0;
     bottom:0;
     z-index: 10;
-    transition: all 900ms ease;
+    transition: all 300ms ease;
 }
 
 .selected.off{
@@ -587,7 +623,6 @@ nav li .submenu{
 
   .modal-container{
     position: fixed;
-    /* display: flex; */
     display: none;
     justify-content: center;
     align-items: center;
@@ -596,26 +631,113 @@ nav li .submenu{
     top:0;
     bottom:0;
     z-index: 20;
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    transition: opacity 300ms ease;
   }
   .modal{
       width: 98%;
-      background-color: rgba(255, 255, 255, 0.1);
+      max-width: 480px;
+      background-color: #141835;
+      color: #fafafa;
+      border-radius: 7px;
   }
   .modal-head{
       padding: 7px 9px;
-      border-bottom: 1px solid #141835;
+      border-bottom: 1px solid #000;
+      position: relative;
+  }
+
+  .modal-head .btn-close{
+      position: absolute;
+      right: 9px;
+      top: 7px;
+      background-color: transparent;
+      border-color: transparent;
+  }
+
+  .modal-head h3{
+      padding: 0;
+      margin:0;
   }
 
   .modal-body{
-    padding: 7px 9px;
+    max-height: 60%;
+    position: relative;
   }
   .modal-footer{
     border-top: 1px solid #141835;
     padding: 7px 9px;
+    display: none;
   }
 
-  @media (min-width: 768px){
-      .modal{
-          width: 40%;
-      }
+  .message{
+      font-size: large;
+      padding: 10px;
   }
+
+  /* Component Guest */
+
+  .guest{
+      position: relative;
+      border-bottom:1px solid  #000;
+      color: #fafafa;
+  }
+
+  .guest:last-child{
+      border-bottom: none;
+  }
+
+  .guest-icon{
+      display: inline-block;
+      float: left;
+      padding-top: 10px;
+      width: 40px;
+      height: auto;
+      text-align: center;
+  }
+
+  .guest .btn-remove{
+      position: absolute;
+      top:10px;
+      right:0;
+      background-color: transparent;
+      border-color: transparent;
+  }
+
+  .guest .guest-txt{
+      padding: 7px;
+      padding-left: 45px;
+  }
+
+  .small{
+      font-size: small;
+  }
+
+  .btn-container{
+      display: flex;
+  }
+
+  .btn-container .btn{
+      padding: 10px;
+      width: 50%;
+      transition: all 300ms ease;
+  }
+
+  .btn-ok{
+      border-bottom-left-radius: 7px;
+  }
+
+  .btn-cancel{
+      border-bottom-right-radius: 7px;
+  }
+
+  .btn-ok:hover{
+      background-color: #477201;
+      border-color: #477201;
+  }
+
+.btn-cancel:hover{
+    background-color: #ff2d57;
+    border-color: #ff2d57;
+}

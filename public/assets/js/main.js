@@ -1,10 +1,11 @@
 class Root {
-    constructor(parent) {
+    constructor(parent, id) {
         if (!(parent instanceof HTMLElement)) {
             console.error('Provide DOM Element to add the room.');
             return null;
         }
-        this._attr = {};
+        //Give id check here
+        this._attr = { 'id': id };
         this._elem = { parent };
         this._requestedAnimationFrame = false;
         this._requestedHide = false,
@@ -93,10 +94,11 @@ class Root {
 
 class Room extends Root {
     constructor(parent, attr, uiOnly, beforeElem) {
-        super(parent);
+        super(parent, attr.id);
         //uiOnly means no request to Server update / create UI only
         this._attr.name = attr.name || 'Unnamed room';
         this._attr.iconSrc = attr.icon || this._attr.iconSrc;
+        this._attr.type = +attr.type || 0;
         this._attr.isNew = attr.isNew;
         this._attr.stats = [+attr.usage || 0, +attr.online || 0, +attr.devices || 0];
         this._elem.beforeElem = beforeElem;
@@ -112,17 +114,29 @@ class Room extends Root {
 
     _draw(isUpdate) {
         let statsDiv, elem, iconElem, statArr = ['stat-usage', 'stat-running', 'stat-devices'],
-            iconArr = ['fa fa-line-chart', 'online', 'fa fa-microchip'], statTxt,
+            iconArr = ['fa fa-line-chart', 'online', 'fa fa-microchip'], statTxt, btnDelete,
             beforeElem = this._elem.beforeElem;
 
         super._draw(isUpdate);
         if (!isUpdate) {
-            this._elem.root.className += ' room';
+            this._elem.root.classList.add('room');
             if (this._attr.isNew) {
                 this._elem.root.className += ' new';
             }
             this._elem.name = document.createElement('h2');
             this._elem.icon = document.createElement('img');
+
+            if(this._attr.type === 0){
+                btnDelete = document.createElement('button');
+                btnDelete.className = 'btn btn-remove';
+                btnDelete.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window.confirmRemoveRoom(this._attr.id);
+                    //return true;
+                });
+                btnDelete.innerHTML = '<span class="fa fa-trash"></span>';
+                this._elem.root.appendChild(btnDelete);
+            }
 
             this._elem.stats = [];
 
@@ -169,7 +183,7 @@ class Room extends Root {
 
 class Device extends Root {
     constructor(parent, attr, uiOnly, beforeElem) {
-        super(parent);
+        super(parent, attr.id);
         //uiOnly means no request to Server update / create UI only
         this._attr.name = attr.name || this._attr.name;
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc;
@@ -194,7 +208,7 @@ class Device extends Root {
         let equipmentHead, icon, equipmentBody, stats, stat, txtStat, statClasses = ['stat-usage', 'stat-online'], statIcons = ['fa fa-line-chart', 'fa fa-clock-o'], switchWraper;
         super._draw(isUpdate);
         if (!isUpdate) {
-            this._elem.root.className = 'equipment';
+            this._elem.root.classList.add('equipment');
             equipmentHead = document.createElement('div');
             this._elem.deviceName = document.createElement('h3');
             equipmentHead.className = 'equipment-head';
@@ -203,6 +217,7 @@ class Device extends Root {
             icon = document.createElement('span');
             icon.className = 'fa fa-trash';
             this._elem.btnDelete.appendChild(icon);
+            this._elem.btnDelete.setAttribute('onclick', 'confirmRemoveDevice(' + this._attr.id + ')');
             equipmentHead.appendChild(this._elem.deviceName);
             equipmentHead.appendChild(this._elem.btnDelete);
 
@@ -223,9 +238,9 @@ class Device extends Root {
                 this._elem.btnOn.innerHTML = 'ON';
                 this._elem.btnOff.innerHTML = 'OFF';
 
-                this._elem.btnOn.addEventListener('click', () =>{
+                this._elem.btnOn.addEventListener('click', () => {
                     //Do ajax call
-                    if(!this._attr.btnRAF){
+                    if (!this._attr.btnRAF) {
                         requestAnimationFrame(() => {
                             this._elem.selected.classList.remove('off');
                             this._attr.btnRAF = false;
@@ -234,9 +249,9 @@ class Device extends Root {
                     }
                 });
 
-                this._elem.btnOff.addEventListener('click', () =>{
+                this._elem.btnOff.addEventListener('click', () => {
                     //Do ajax call
-                    if(!this._attr.btnRAF){
+                    if (!this._attr.btnRAF) {
                         requestAnimationFrame(() => {
                             this._elem.selected.classList.add('off');
                             this._attr.btnRAF = false;
@@ -251,7 +266,7 @@ class Device extends Root {
                 switchWraper.appendChild(this._elem.selected);
 
                 equipmentBody.appendChild(switchWraper);
-            }else{
+            } else {
                 this.regulator = new Regulator(
                     equipmentBody,
                     180, '#1c90dd', '#aaa', '#aaa', '#477201', 10, 2,

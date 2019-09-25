@@ -103,7 +103,13 @@
 
     <script>
         var roomCategory = 1, requestedToggle = false, rooms = [], equipments = [], roomOpened = false, devices = [], guests = [],
-            deviceIdMap = {}, roomsIdMap = {};
+            deviceIdMap = {}, roomsIdMap = {}, iconIndex = 0;
+
+        const roomIcons = ['001-wardrobe.png', '012-rack.png', '025-closet.png', '041-chandelier.png', 'bed.png', 'dog.png', 'mirror.png', 'window.png',
+            '002-tv-table.png', '015-desk-1.png', '029-double-bed.png', '044-bunk-bed.png', 'bookcase.png', 'door-1.png', 'shower.png',
+            '007-sofa.png', '018-mirror.png', '031-cupboard-1.png', '048-cupboard.png', 'cactus.png', 'door.png', 'television.png',
+            '010-shelves.png', '021-lamp.png', '035-cabinet.png', '049-table.png', 'computer.png', 'living-room.png', 'window-1.png'];
+
         var modalHead = document.getElementById('modal-head'),
             modalBody = document.getElementById('modal-body'),
             modalFooter = document.getElementById('modal-footer'),
@@ -120,98 +126,98 @@
                 {
                     id: '10',
                     name: 'Kitchen',
-                    icon: 'assets/images/673311-furniture/png/023-kitchen.png',
+                    icon: 'assets/images/home/023-kitchen.png',
                     type: 0
                 },
                 {
                     id: '11',
                     name: 'Bedroom',
-                    icon: 'assets/images/205649-furniture-color/png/bed-1.png',
+                    icon: 'assets/images/home/bed-1.png',
                     type: 0
                 },
                 {
                     id: '12',
                     name: 'Study',
-                    icon: 'assets/images/205649-furniture-color/png/bookcase.png',
+                    icon: 'assets/images/home/bookcase.png',
                     type: 0
                 },
                 {
                     id: '18',
                     name: 'Kitchen',
-                    icon: 'assets/images/673311-furniture/png/023-kitchen.png',
+                    icon: 'assets/images/home/023-kitchen.png',
                     type: 0
                 },
                 {
                     id: '19',
                     name: 'Bedroom',
-                    icon: 'assets/images/205649-furniture-color/png/bed-1.png',
+                    icon: 'assets/images/home/bed-1.png',
                     type: 0
                 },
                 {
                     id: '20',
                     name: 'Study',
-                    icon: 'assets/images/205649-furniture-color/png/bookcase.png',
+                    icon: 'assets/images/home/bookcase.png',
                     type: 0
                 },
                 {
                     id: '100',
                     name: 'Kitchen',
-                    icon: 'assets/images/673311-furniture/png/023-kitchen.png',
+                    icon: 'assets/images/home/023-kitchen.png',
                     type: 0
                 },
                 {
                     id: '102',
                     name: 'Bedroom',
-                    icon: 'assets/images/205649-furniture-color/png/bed-1.png',
+                    icon: 'assets/images/home/bed-1.png',
                     type: 0
                 },
                 {
                     id: '72',
                     name: 'Study',
-                    icon: 'assets/images/205649-furniture-color/png/bookcase.png',
+                    icon: 'assets/images/home/bookcase.png',
                     type: 0
                 },
                 {
                     id: '99',
                     name: 'Bedroom',
-                    icon: 'assets/images/205649-furniture-color/png/bed-1.png',
+                    icon: 'assets/images/home/bed-1.png',
                     type: 0
                 },
                 {
                     id: '100',
                     name: 'Study',
-                    icon: 'assets/images/205649-furniture-color/png/bookcase.png',
+                    icon: 'assets/images/home/bookcase.png',
                     type: 0
                 }
             ], gRoomAttrs = [
                 {
                     id: '12333',
                     name: 'Kitchen',
-                    icon: 'assets/images/673311-furniture/png/023-kitchen.png',
+                    icon: 'assets/images/home/023-kitchen.png',
                     type: 1
                 },
                 {
                     id: '12334',
                     name: 'Bedroom',
-                    icon: 'assets/images/205649-furniture-color/png/bed-1.png',
+                    icon: 'assets/images/home/bed-1.png',
                     type: 1
                 },
                 {
                     id: '12335',
                     name: 'Study',
-                    icon: 'assets/images/205649-furniture-color/png/bookcase.png',
+                    icon: 'assets/images/home/bookcase.png',
                     type: 1
                 },
                 {
                     id: '12336',
                     name: 'Bedroom',
-                    icon: 'assets/images/205649-furniture-color/png/bed-1.png',
+                    icon: 'assets/images/home/bed-1.png',
                     type: 1
                 },
                 {
                     id: '12337',
                     name: 'Study',
-                    icon: 'assets/images/205649-furniture-color/png/bookcase.png',
+                    icon: 'assets/images/home/bookcase.png',
                     type: 1
                 }
             ],
@@ -262,6 +268,15 @@
         for (let i = deviceAttrs.length - 1; i >= 0; i--) {
             deviceIdMap[deviceAttrs[i].id] = devices.length;
             devices.push(new Device(equipmentContainer, deviceAttrs[i]));
+        }
+
+        function changeRoomIcon(num){
+            iconIndex += num;
+            if(iconIndex < 0){
+                iconIndex = roomIcons.length - 1;
+            }
+            iconIndex = iconIndex % roomIcons.length;
+            document.getElementById('room-icon').src = 'assets/images/home/' + roomIcons[iconIndex];
         }
 
         function toggleRooms(category) {
@@ -427,9 +442,9 @@
         function showAddRoom() {
             let htmlStr = '<div id="card-add-room" class="room-add">' +
                 '<div class="img-selector">' +
-                '<button class="btn btn-left">&lt;</button>' +
-                '<img src="assets/images/673311-furniture/png/023-kitchen.png" class="room-icon" alt="room-icon" title="room-icon" />' +
-                '<button class="btn btn-right">&gt;</button>' +
+                '<button class="btn btn-left" onclick="changeRoomIcon(-1)">&lt;</button>' +
+                '<img src="assets/images/home/023-kitchen.png" id="room-icon" class="room-icon" alt="room-icon" title="room-icon" />' +
+                '<button class="btn btn-right" onclick="changeRoomIcon(1)">&gt;</button>' +
                 '</div>' +
                 '<div class="txt-room-name">' +
                 '<input class="inp" id="inp-room-name" type="text" placeholder="Name the room" />' +

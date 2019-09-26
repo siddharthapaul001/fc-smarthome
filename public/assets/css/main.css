@@ -73,13 +73,37 @@ nav li{
 nav li .submenu{
     position: absolute;
     right:19px;
+    bottom: -30px;
     display: none;
     background-color: #fafafa;
+    border-radius: 5px;
+    z-index: 10;
+}
+
+.submenu .notch{
+    position: absolute;
+    display: block;
+    top: -10px;
+    right: 5px;
+    border-bottom: 10px solid #fafafa;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    height: 0;
+    width: 0;
 }
 
 .submenu a{
-    color: #8042f6;
+    color: #333;
     font-size: 14px;
+    padding: 9px 25px;
+    /* transition: all 300ms ease; */
+}
+/* 
+.submenu a:hover{
+} */
+
+nav li:hover .submenu{
+    display: block;
 }
 
 .rooms-container{
@@ -636,8 +660,8 @@ nav li .submenu{
     transition: opacity 300ms ease;
   }
   .modal{
-      width: 98%;
-      max-width: 480px;
+      width: 90%;
+      max-width: 360px;
       background-color: #141835;
       color: #fafafa;
       border-radius: 7px;

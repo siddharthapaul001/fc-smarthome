@@ -37,13 +37,21 @@ app.use(session({
     cookie: { secure: false }
 }));
 
-app.use('/', express.static(path.join(__dirname, 'public')));
+app.use('/assets', express.static(path.join(__dirname, 'html/assets')));
 
-app.use('/test', (req, res) => {
+app.get('/test', (req, res) => {
     res.end(JSON.stringify(req.session.user));
 })
 
-app.get('/login', passport.authenticate('google', { scope: ['email', 'profile'] }));
+app.get('/', (req, res) => {
+    if(req.session.user && req.session.user.googleId){
+        res.sendFile(path.join(__dirname, 'html/index.html'));
+    }else{
+        res.redirect('/login');
+    }
+});
+
+app.get('/login', passport.authenticate('google', { scope: ['email', 'profile'], prompt : "select_account" }));
 
 app.get('/auth', passport.authenticate('google'), (req, res) => {
     req.session.user = {
@@ -53,7 +61,7 @@ app.get('/auth', passport.authenticate('google'), (req, res) => {
         email: req.user.emails[0].value,
         dp: req.user.photos[0].value
     }
-    res.redirect('/test');
+    res.redirect('/');
 });
 
 app.get('/logout', (req, res) => {

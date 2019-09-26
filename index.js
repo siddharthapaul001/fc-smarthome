@@ -3,7 +3,7 @@ const passport = require('passport');
 const session = require('express-session');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const path = require('path');
-const dbController = require('./utils/dbcontroller');
+const { getUser } = require('./utils/dbcontroller');
 const secret = require('./secrets/googleoauth');
 
 const app = express();
@@ -18,7 +18,16 @@ passport.use(new GoogleStrategy({
     callbackURL: "/auth"
 },
     function (accessToken, refreshToken, profile, done) {
-        return done(null, profile);
+        let user = {
+            googleId: profile.id,
+            fullName: profile.displayName,
+            name: profile.name['givenName'],
+            email: profile.emails[0].value,
+            dp: profile.photos[0].value
+        };
+        getUser(user, (err, data) => {
+            return done(null, data);
+        });
     }
 ));
 passport.serializeUser(function (user, cb) {
@@ -44,23 +53,17 @@ app.get('/test', (req, res) => {
 })
 
 app.get('/', (req, res) => {
-    if(req.session.user && req.session.user.googleId){
+    if (req.session.user && req.session.user.googleId) {
         res.sendFile(path.join(__dirname, 'html/index.html'));
-    }else{
+    } else {
         res.redirect('/login');
     }
 });
 
-app.get('/login', passport.authenticate('google', { scope: ['email', 'profile'], prompt : "select_account" }));
+app.get('/login', passport.authenticate('google', { scope: ['email', 'profile'], prompt: "select_account" }));
 
 app.get('/auth', passport.authenticate('google'), (req, res) => {
-    req.session.user = {
-        googleId: req.user.id,
-        fullName: req.user.displayName,
-        name: req.user.name['givenName'],
-        email: req.user.emails[0].value,
-        dp: req.user.photos[0].value
-    }
+    req.session.user = req.user;
     res.redirect('/');
 });
 
@@ -70,6 +73,7 @@ app.get('/logout', (req, res) => {
         //res.redirect('https://accounts.google.com/logout');
     });
 })
+
 
 // app.get('/', (req, res)=>{
 //     res.writeHead(200, {

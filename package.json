@@ -23,6 +23,7 @@
     "express": "",
     "passport": "",
     "passport-google-oauth": "",
-    "express-session": ""
+    "express-session": "",
+    "mongodb": ""
   }
 }

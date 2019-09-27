@@ -5,12 +5,9 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const path = require('path');
 const { getUser } = require('./utils/dbcontroller');
 const secret = require('./secrets/googleoauth');
+const apiRouter = require('./routes/api');
 
 const app = express();
-
-var commonHeaders = {
-    'Content-Type': 'application/json'
-}
 
 passport.use(new GoogleStrategy({
     clientID: secret.GOOGLE_CLIENT_ID,
@@ -74,16 +71,6 @@ app.get('/logout', (req, res) => {
     });
 })
 
-
-// app.get('/', (req, res)=>{
-//     res.writeHead(200, {
-//         ...commonHeaders
-//     })
-
-//     res.end(JSON.stringify({
-//         status: 200
-//     }));
-// });
-
+app.use('/api', apiRouter);
 
 app.listen(process.env.PORT || 5000, () => console.log('running...'));

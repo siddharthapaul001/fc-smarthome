@@ -2,10 +2,11 @@ class Regulator {
     constructor(parent, side, color, nobColor, scaleColor, setScaleColor, scale = 10, scaleWidth = 2, cb) {
         this._elem = {};
         this._attr = {};
-        this._attr.scale = scale;
+        this._attr.scale = +scale > 20 ? 20 : scale;
         this._attr.color = color;
         this._attr.nobColor = nobColor;
         this._attr.scaleColor = scaleColor;
+        this._attr.offColor = '#ff2d57';
         this._attr.setScaleColor = setScaleColor;
         this._elem.lines = [];
         this._attr.lines = [];
@@ -13,12 +14,12 @@ class Regulator {
         this.value = 0;
         this._requestedAnimationFrame = false;
 
-        if(typeof cb === 'function'){
+        if (typeof cb === 'function') {
             this.cb = cb;
         }
 
         requestAnimationFrame(() => {
-            this._createRegulator(parent, side, color, nobColor, scaleColor, scale, scaleWidth);
+            this._createRegulator(parent, side, color, nobColor, scaleColor, scale, +scaleWidth || 2);
         });
         this._requestedAnimationFrame = true;
     }
@@ -41,6 +42,9 @@ class Regulator {
         for (let i = 0; i <= this._attr.scale; i++) {
             strokeColor = i <= this._attr.scale * val / 100 ? this._attr.setScaleColor : this._attr.scaleColor;
             this._elem.lines[i].setAttribute('stroke', strokeColor);
+        }
+        if (val === 0) {
+            this._elem.lines[0].setAttribute('stroke', this._attr.offColor);
         }
         this._elem.regulator.setAttribute('transform', 'rotate(' + deg + ',' + c + ',' + c + ')');
     }
@@ -108,7 +112,7 @@ class Regulator {
                 }
             });
             this.setValue(selectedIdx * 100 / this._attr.scale);
-            if(this.cb){
+            if (this.cb) {
                 this.cb(this.value);
             }
         });

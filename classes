@@ -1,0 +1,63 @@
+Regulator------------------------------------------
+Needed to instantiate separate regulator for multiple devices and store their id and current status
+__Attributes__
+
+
+__Functions__
+
+constructor() intialize colors, value, height, width etc... which are required for drawing
+
+setValue() update regulator value
+
+_renderValue() called from setValue / _createRegulator inside requestAnimationFrame to render the set / updated value
+
+_createRegulator() called from constructor for first time only inside requestAnimationFrame
+
+
+Root-----------------------------------------------
+Needed to do the common functionilities for Room and devices
+__Attributes__
+
+
+__Functions__
+
+constructor() set common flags / attribute values and elements
+
+render() manage changes and calls _draw (interats with DOM) inside requestAnimationFrame
+
+hide() controls awesome hide animation for both room and device
+
+show() controls hide --> show animation for both room and device
+
+fadeIn() controls fade in animation for both room and device
+
+fadeOut() controls fade out animation for both room and device
+
+_draw() internal function called by render inside requestAnimationFrame to do the required changes on DOM
+
+
+Room inherits Root------------------------------------
+Needed to instantiate multiple rooms with their own id, name other attributes and features
+__Attributes__
+
+
+__Functions__
+
+constructor() set required attribute values, flags calls render(inherited from parent)
+
+_draw() calls super._draw() to do first steps
+
+update() update room name and icon on editing # editing feature is in upcoming feature list
+
+Device inherits Root------------------------------------
+Needed to instantiate multiple devices with their own id, name other attributes and features
+__Attributes__
+_attr = {id: "", name: "", deviceType: switch / regulator, }
+
+__Functions__
+
+constructor() set required attribute values, flags calls render(inherited from parent)
+
+_draw() calls super._draw() to do first steps
+
+update() update room name and icon on editing # editing feature is in upcoming feature list

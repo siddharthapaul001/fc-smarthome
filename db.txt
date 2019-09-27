@@ -1,0 +1,31 @@
+user------------------------
+{
+    "_id":"",
+    "googleId":"",
+    "fullName":"",
+    "name":"",
+    "email":"",
+    "dp":""
+}
+
+
+room-------------------------
+{
+    "_id": "",
+    "roomName": "",
+    "roomIcon": "",
+    "lastUpdated": DateTime, # to reduce extra database hit for cheking on devices / total devices wattage etc.
+    "owner": users._id,
+    "guests": [users._id]
+}
+
+device-------------------------
+{
+    "_id": "",
+    "deviceName": "",
+    "deviceType": true / false, #true means regulator, false means switch
+    "roomId": rooms._id,
+    "wattage": number, # maximum wattage value
+    "range": [min, max], # only for regulator
+    "steps": number of nobs in regulator 
+}

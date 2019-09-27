@@ -5,11 +5,11 @@ class Root {
             return null;
         }
         //Give id check here
-        this._attr = { 'id': id };
+        this._attr = { '_id': id };
         this._elem = { parent };
         this._requestedAnimationFrame = false;
-        this._requestedHide = false,
-            this._requestedShow = false;
+        this._requestedHide = false;
+        this._requestedShow = false;
     }
 
     render(isUpdate) {
@@ -93,9 +93,8 @@ class Root {
 }
 
 class Room extends Root {
-    constructor(parent, attr, uiOnly, beforeElem) {
-        super(parent, attr.id);
-        //uiOnly means no request to Server update / create UI only
+    constructor(parent, attr, beforeElem) {
+        super(parent, attr._id);
         this._attr.name = attr.name || 'Unnamed room';
         this._attr.iconSrc = attr.icon || this._attr.iconSrc;
         this._attr.type = +attr.type || 0;
@@ -105,7 +104,7 @@ class Room extends Root {
         this.render(false);
     }
 
-    update(attr, uiOnly) {
+    update(attr) {
         //code to update on server
         this._attr.name = attr.name || this._attr.name; //saniized name from server
         this._attr.iconSrc = attr.icon || this._attr.iconSrc; //sanitized icon src from server
@@ -126,12 +125,12 @@ class Room extends Root {
             this._elem.name = document.createElement('h2');
             this._elem.icon = document.createElement('img');
 
-            if(this._attr.type === 0){
+            if (this._attr.type === 0) {
                 btnDelete = document.createElement('button');
                 btnDelete.className = 'btn btn-remove';
                 btnDelete.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    window.confirmRemoveRoom(this._attr.id);
+                    window.confirmRemoveRoom(this._attr._id);
                     //return true;
                 });
                 btnDelete.innerHTML = '<span class="fa fa-trash"></span>';
@@ -155,7 +154,7 @@ class Room extends Root {
             }
             this._elem.icon.className = 'room-icon';
 
-            this._elem.root.setAttribute('onclick', 'openRoom(this, ' + this._attr.id + ')');
+            this._elem.root.setAttribute('onclick', 'openRoom(this, ' + this._attr._id + ')');
 
             this._elem.root.appendChild(this._elem.icon);
             this._elem.root.appendChild(this._elem.name);
@@ -182,22 +181,27 @@ class Room extends Root {
 }
 
 class Device extends Root {
-    constructor(parent, attr, uiOnly, beforeElem) {
-        super(parent, attr.id);
-        //uiOnly means no request to Server update / create UI only
+    constructor(parent, attr, beforeElem, cb) {
+        super(parent, attr._id);
         this._attr.name = attr.name || this._attr.name;
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc;
-        this._attr.isNew = attr.isNew;
+        this._attr.isNew = Boolean(attr.isNew);
+        this._attr.steps = +attr.steps || 10;
         this.isRegulator = Boolean(attr.isRegulator);
         this._attr.stats = [+attr.usage || 0, +attr.online || 0];
+        this._attr.value = +attr.value >= 0 ? +attr.value : 0;
         this._elem.stats = [];
         this._elem.beforeElem = beforeElem;
         this._attr.btnRAF = false;
-
+        if (typeof cb === 'function') {
+            this._callback = (deviceId, val) => {
+                cb(deviceId, val);
+            }
+        }
         this.render(false);
     }
 
-    update(attr, uiOnly) {
+    update(attr) {
         //code to update on server
         this._attr.name = attr.name || this._attr.name; //saniized name from server
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc; //sanitized icon src from server
@@ -217,7 +221,7 @@ class Device extends Root {
             icon = document.createElement('span');
             icon.className = 'fa fa-trash';
             this._elem.btnDelete.appendChild(icon);
-            this._elem.btnDelete.setAttribute('onclick', 'confirmRemoveDevice(' + this._attr.id + ')');
+            this._elem.btnDelete.setAttribute('onclick', 'confirmRemoveDevice(' + this._attr._id + ')');
             equipmentHead.appendChild(this._elem.deviceName);
             equipmentHead.appendChild(this._elem.btnDelete);
 
@@ -227,7 +231,7 @@ class Device extends Root {
             equipmentBody.className = 'equipment-body';
             if (!this.isRegulator) {
                 switchWraper.className = 'switch-container';
-                this._elem.selected.className = 'selected'
+                this._elem.selected.className = this._attr.value === 0 ? 'selected off' : 'selected';
 
                 this._elem.btnOn = document.createElement('button');
                 this._elem.btnOff = document.createElement('button');
@@ -240,6 +244,9 @@ class Device extends Root {
 
                 this._elem.btnOn.addEventListener('click', () => {
                     //Do ajax call
+                    if (this._callback) {
+                        this._callback(this._attr._id, 100);
+                    }
                     if (!this._attr.btnRAF) {
                         requestAnimationFrame(() => {
                             this._elem.selected.classList.remove('off');
@@ -251,6 +258,9 @@ class Device extends Root {
 
                 this._elem.btnOff.addEventListener('click', () => {
                     //Do ajax call
+                    if (this._callback) {
+                        this._callback(this._attr._id, 0);
+                    }
                     if (!this._attr.btnRAF) {
                         requestAnimationFrame(() => {
                             this._elem.selected.classList.add('off');
@@ -271,7 +281,9 @@ class Device extends Root {
                     equipmentBody,
                     180, '#1c90dd', '#aaa', '#aaa', '#477201', 10, 2,
                     (val) => {
-                        console.log(val);
+                        if (this._callback) {
+                            this._callback(this._attr._id, val);
+                        }
                     }
                 );
             }
@@ -295,6 +307,15 @@ class Device extends Root {
         }
 
         this._elem.deviceName.innerHTML = this._attr.name;
+        if (this.isRegulator) {
+            this.regulator.setValue(this._attr.value);
+        } else {
+            if (this._attr.value === 0) {
+                this._elem.selected.classList.add('off');
+            }else{
+                this._elem.selected.classList.remove('off');
+            }
+        }
 
         if (!isUpdate) {
             if (this._elem.beforeElem instanceof HTMLElement) {

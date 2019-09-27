@@ -10,6 +10,7 @@
     <link rel="stylesheet" type="text/css" href="assets/css/main.css">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <script src="assets/js/ajax.js"></script>
     <script src="assets/js/regulator.js"></script>
     <script src="assets/js/main.js"></script>
 </head>
@@ -125,98 +126,98 @@
             equipmentContainer = document.getElementById('equipments'),
             roomAttrs = [
                 {
-                    id: '10',
+                    _id: '10',
                     name: 'Kitchen',
                     icon: 'assets/images/home/023-kitchen.png',
                     type: 0
                 },
                 {
-                    id: '11',
+                    _id: '11',
                     name: 'Bedroom',
                     icon: 'assets/images/home/bed-1.png',
                     type: 0
                 },
                 {
-                    id: '12',
+                    _id: '12',
                     name: 'Study',
                     icon: 'assets/images/home/bookcase.png',
                     type: 0
                 },
                 {
-                    id: '18',
+                    _id: '18',
                     name: 'Kitchen',
                     icon: 'assets/images/home/023-kitchen.png',
                     type: 0
                 },
                 {
-                    id: '19',
+                    _id: '19',
                     name: 'Bedroom',
                     icon: 'assets/images/home/bed-1.png',
                     type: 0
                 },
                 {
-                    id: '20',
+                    _id: '20',
                     name: 'Study',
                     icon: 'assets/images/home/bookcase.png',
                     type: 0
                 },
                 {
-                    id: '100',
+                    _id: '100',
                     name: 'Kitchen',
                     icon: 'assets/images/home/023-kitchen.png',
                     type: 0
                 },
                 {
-                    id: '102',
+                    _id: '102',
                     name: 'Bedroom',
                     icon: 'assets/images/home/bed-1.png',
                     type: 0
                 },
                 {
-                    id: '72',
+                    _id: '72',
                     name: 'Study',
                     icon: 'assets/images/home/bookcase.png',
                     type: 0
                 },
                 {
-                    id: '99',
+                    _id: '99',
                     name: 'Bedroom',
                     icon: 'assets/images/home/bed-1.png',
                     type: 0
                 },
                 {
-                    id: '100',
+                    _id: '100',
                     name: 'Study',
                     icon: 'assets/images/home/bookcase.png',
                     type: 0
                 }
             ], gRoomAttrs = [
                 {
-                    id: '12333',
+                    _id: '12333',
                     name: 'Kitchen',
                     icon: 'assets/images/home/023-kitchen.png',
                     type: 1
                 },
                 {
-                    id: '12334',
+                    _id: '12334',
                     name: 'Bedroom',
                     icon: 'assets/images/home/bed-1.png',
                     type: 1
                 },
                 {
-                    id: '12335',
+                    _id: '12335',
                     name: 'Study',
                     icon: 'assets/images/home/bookcase.png',
                     type: 1
                 },
                 {
-                    id: '12336',
+                    _id: '12336',
                     name: 'Bedroom',
                     icon: 'assets/images/home/bed-1.png',
                     type: 1
                 },
                 {
-                    id: '12337',
+                    _id: '12337',
                     name: 'Study',
                     icon: 'assets/images/home/bookcase.png',
                     type: 1
@@ -224,51 +225,51 @@
             ],
             deviceAttrs = [
                 {
-                    id: '199',
+                    _id: '199',
                     name: 'Bulb',
                     isRegulator: false
                 },
                 {
-                    id: '209',
+                    _id: '209',
                     name: 'AC',
                     isRegulator: true
                 },
                 {
-                    id: '299',
+                    _id: '299',
                     name: 'Fan',
                     isRegulator: true
                 },
                 {
-                    id: '19223',
+                    _id: '19223',
                     name: 'Light',
                     isRegulator: false
                 }
             ], guestArr = [
                 {
-                    id: '1',
+                    _id: '1',
                     name: 'Siddhartha Paul',
                     email: 'siddharta@fusioncharts.com'
                 },
                 {
-                    id: '999',
+                    _id: '999',
                     name: 'Sid',
                     email: 'siddharthapaul0001@gmail.com'
                 }
             ];
 
         for (let i = roomAttrs.length - 1; i >= 0; i--) {
-            roomsIdMap[roomAttrs[i].id] = rooms.length;
+            roomsIdMap[roomAttrs[i]._id] = rooms.length;
             rooms.push(new Room(ownRooms, roomAttrs[i], true));
         }
 
         for (let i = gRoomAttrs.length - 1; i >= 0; i--) {
-            roomsIdMap[gRoomAttrs[i].id] = rooms.length;
+            roomsIdMap[gRoomAttrs[i]._id] = rooms.length;
             rooms.push(new Room(guestRooms, gRoomAttrs[i], true));
         }
 
         for (let i = deviceAttrs.length - 1; i >= 0; i--) {
-            deviceIdMap[deviceAttrs[i].id] = devices.length;
-            devices.push(new Device(equipmentContainer, deviceAttrs[i]));
+            deviceIdMap[deviceAttrs[i]._id] = devices.length;
+            devices.push(new Device(equipmentContainer, deviceAttrs[i], undefined, reqUpdateDeviceStatus));
         }
 
         function changeRoomIcon(num){
@@ -425,7 +426,7 @@
 
             btnRemove = document.createElement('button');
             if (!isInput) {
-                btnRemove.setAttribute('onclick', "removeGuest(" + guests.length + ", '" + guestData.id + "')");
+                btnRemove.setAttribute('onclick', "removeGuest(" + guests.length + ", '" + guestData._id + "')");
                 btnRemove.className = 'btn btn-remove';
                 btnRemove.innerHTML = '<span class="fa fa-trash"></span>';
             } else {
@@ -460,7 +461,7 @@
         function showAddDevice() {
             let htmlStr = '<div id="card-add-room" class="device-add">' +
                 '<div class="txt-device-name">' +
-                '<input class="inp" id="inp-room-name" type="text" placeholder="Name the room" />' +
+                '<input class="inp" id="inp-room-name" type="text" placeholder="Name the device" />' +
                 '</div>' +
                 '<div class="txt-device-type">' +
                 '<span>Device Type: </span><input type="radio" name="device-type" id="device-type-switch" value="switch" checked/> <label for="device-type-switch">Switch</label>' +
@@ -509,7 +510,14 @@
             showModal('Guests', makeGuestList(guestArr));
         }
 
+        function reqUpdateDeviceStatus(deviceId, value){
+            console.log(deviceId, value);
+        }
+
         function initView() {
+            sendRequest('GET', '/api/getprofile', (data) => {
+                console.log(data);
+            });
             requestAnimationFrame(() => {
                 ownRooms.setAttribute('style', 'max-height:' + (window.innerHeight - ownRooms.offsetTop - 20) + 'px;');
                 guestRooms.setAttribute('style', 'max-height:' + (window.innerHeight - ownRooms.offsetTop - 20) + 'px;');

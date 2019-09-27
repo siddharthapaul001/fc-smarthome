@@ -73,7 +73,7 @@ nav li{
 nav li .submenu{
     position: absolute;
     right:19px;
-    bottom: -30px;
+    bottom: -40px;
     display: none;
     background-color: #fafafa;
     border-radius: 5px;

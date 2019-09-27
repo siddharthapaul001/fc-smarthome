@@ -95,8 +95,8 @@ class Root {
 class Room extends Root {
     constructor(parent, attr, beforeElem) {
         super(parent, attr._id);
-        this._attr.name = attr.name || 'Unnamed room';
-        this._attr.iconSrc = attr.icon || this._attr.iconSrc;
+        this._attr.name = attr.roomName || 'Unnamed room';
+        this._attr.iconSrc = attr.roomIcon || this._attr.iconSrc;
         this._attr.type = +attr.type || 0;
         this._attr.isNew = attr.isNew;
         this._attr.stats = [+attr.usage || 0, +attr.online || 0, +attr.devices || 0];
@@ -105,9 +105,9 @@ class Room extends Root {
     }
 
     update(attr) {
-        //code to update on server
-        this._attr.name = attr.name || this._attr.name; //saniized name from server
-        this._attr.iconSrc = attr.icon || this._attr.iconSrc; //sanitized icon src from server
+        this._attr.name = attr.roomName || this._attr.name; //saniized name from server
+        this._attr.iconSrc = attr.roomIcon || this._attr.iconSrc; //sanitized icon src from server
+        this._attr.stats = [+attr.usage || 0, +attr.online || 0, +attr.devices || 0];
         this.render(true);
     }
 
@@ -120,7 +120,10 @@ class Room extends Root {
         if (!isUpdate) {
             this._elem.root.classList.add('room');
             if (this._attr.isNew) {
-                this._elem.root.className += ' new';
+                this._elem.root.className += ' hidden';
+                setTimeout(() => {
+                    this.show();
+                }, 300);
             }
             this._elem.name = document.createElement('h2');
             this._elem.icon = document.createElement('img');
@@ -154,7 +157,7 @@ class Room extends Root {
             }
             this._elem.icon.className = 'room-icon';
 
-            this._elem.root.setAttribute('onclick', 'openRoom(this, ' + this._attr._id + ')');
+            this._elem.root.setAttribute('onclick', 'openRoom(this, \'' + this._attr._id + '\')');
 
             this._elem.root.appendChild(this._elem.icon);
             this._elem.root.appendChild(this._elem.name);
@@ -172,7 +175,7 @@ class Room extends Root {
         //Append Room DOM into HTML DOM
         if (!isUpdate) {
             if (beforeElem instanceof HTMLElement) {
-                this._elem.parent.appendChild(this._elem.root);
+                this._elem.parent.insertBefore(this._elem.root, beforeElem);
             } else {
                 this._elem.parent.appendChild(this._elem.root);
             }

@@ -24,6 +24,7 @@
     "passport": "",
     "passport-google-oauth": "",
     "express-session": "",
-    "mongodb": ""
+    "mongodb": "",
+    "body-parser": ""
   }
 }

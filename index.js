@@ -1,11 +1,12 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const passport = require('passport');
 const session = require('express-session');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const path = require('path');
-const { getUser } = require('./utils/dbcontroller');
+// const { getUser } = require('./utils/dbcontroller');
 const secret = require('./secrets/googleoauth');
-const apiRouter = require('./routes/api');
+const {apiRouter, getUser} = require('./routes/api');
 
 const app = express();
 
@@ -34,6 +35,8 @@ passport.serializeUser(function (user, cb) {
 passport.deserializeUser(function (obj, cb) {
     cb(null, obj);
 });
+
+app.use(bodyParser.json());
 
 app.use(passport.initialize());
 app.use(session({

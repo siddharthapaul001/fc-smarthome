@@ -5,7 +5,7 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const path = require('path');
 const { getUser } = require('./utils/dbcontroller');
 const secret = require('./secrets/googleoauth');
-//const apiRouter = require('./routes/api');
+const apiRouter = require('./routes/api');
 
 const app = express();
 
@@ -71,6 +71,6 @@ app.get('/logout', (req, res) => {
     });
 })
 
-//app.use('/api', apiRouter);
+app.use('/api', apiRouter);
 
 app.listen(process.env.PORT || 5000, () => console.log('running...'));

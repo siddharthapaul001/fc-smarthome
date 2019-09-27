@@ -15,6 +15,8 @@ mongoClient.connect('mongodb+srv://' + user + ':' + pass + '@sidsmarthome-jxheb.
             let users = db.collection('users');
             users.createIndex('googleId', { unique: true });
             users.createIndex('email', { unique: true });
+        }else{
+            console.log(err);
         }
     });
 
@@ -22,6 +24,9 @@ function getUser(user, cb) {
     db.collection('users').findOneAndUpdate({ googleId: user.googleId }, {$set: user},
     {new: true},
     (err, data) => {
+        if(err){
+            console.log(err);
+        }
         if (!data) {
             db.collection('users').insertOne(user, (err, insertedData) => {
                 cb(err, insertedData.ops[0]);

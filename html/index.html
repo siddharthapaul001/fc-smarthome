@@ -516,7 +516,7 @@
 
         function initView() {
             sendRequest('GET', '/api/getprofile', (data) => {
-                console.log(data);
+                document.getElementById('username').innerHTML = data['name'];
             });
             requestAnimationFrame(() => {
                 ownRooms.setAttribute('style', 'max-height:' + (window.innerHeight - ownRooms.offsetTop - 20) + 'px;');

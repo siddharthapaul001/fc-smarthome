@@ -28,9 +28,7 @@ function getUser(user, cb) {
             console.log(err);
         }
         if (!data["value"]) {
-            console.log('here');
             db.collection('users').insertOne(user, {new: true}, (err, insertedData) => {
-                console.log(insertedData);
                 cb(err, insertedData.ops[0]);
             });
         } else {

@@ -17,6 +17,7 @@ var commonHeaders = {
 
 apiRouter.get('/getprofile', (req, res) => {
     let statusCode = 401;
+    console.log(req.session.user);
     if (req.session.user && req.session.user._id) {
         statusCode = 200;
     }

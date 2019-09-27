@@ -52,7 +52,7 @@ update() update room name and icon on editing # editing feature is in upcoming f
 Device inherits Root------------------------------------
 Needed to instantiate multiple devices with their own id, name other attributes and features
 __Attributes__
-_attr = {id: "", name: "", deviceType: switch / regulator, }
+_attr = {id: "", name: "", deviceType: switch / regulator}
 
 __Functions__
 

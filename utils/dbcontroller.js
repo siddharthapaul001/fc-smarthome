@@ -43,11 +43,11 @@ mongoClient.connect('mongodb+srv://' + user + ':' + pass + '@sidsmarthome-jxheb.
     });
 
 function getUser(user, cb) {
-    db.collection('users').findOneAndUpdate({ googleId: user.googleId }, { $set: user },
+    db.collection('users').findOneAndUpdate({ $or: [{ googleId: user.googleId }, { email: user.email }] }, { $set: user },
         { returnOriginal: false },
         (err, data) => {
             if (!data["value"]) {
-                db.collection('users').insertOne(user, { returnOriginal: false }, (err, insertedData) => {
+                db.collection('users').insertOne(sanitizeParams(user, ['googleId', 'fullName', 'name', 'email', 'dp']), { returnOriginal: false }, (err, insertedData) => {
                     cb(err, insertedData.ops[0]);
                 });
             } else {
@@ -64,6 +64,9 @@ function addRoom(roomData, cb) {
 
 function removeRoom(roomData, cb) {
     db.collection('rooms').deleteOne(sanitizeParams(roomData, ['_id', 'owner']), (err, data) => {
+        if (data["result"] && data["result"]["n"] > 0) {
+            db.collection('devices').deleteMany({ roomId: roomData._id });
+        }
         cb(err, data["result"]);
     })
 }
@@ -88,10 +91,9 @@ function addDevice(userId, deviceData, cb) {
 }
 
 function getDeviceListByRoom(userId, roomId, lt, cb) {
-    console.log(userId, roomId);
     db.collection('rooms').findOne({ $or: [{ _id: mongoDB.ObjectID(roomId), owner: userId }, { _id: mongoDB.ObjectID(roomId), guests: userId }] }, (err, roomFound) => {
         if (roomFound) {
-            db.collection('devices').find({ roomId, lastUpdated: {$gt: lt} }).toArray((err, devices) => {
+            db.collection('devices').find({ roomId, lastUpdated: { $gt: lt } }).toArray((err, devices) => {
                 cb(err, { code: 200, devices });
             });
         } else {
@@ -100,8 +102,16 @@ function getDeviceListByRoom(userId, roomId, lt, cb) {
     });
 }
 
-function removeDevice(userId, deviceId, cb) {
-    cb();
+function removeDevice(userId, roomId, deviceId, cb) {
+    db.collection('rooms').findOneAndUpdate({ _id: mongoDB.ObjectID(roomId), owner: userId }, { $set: { lastUpdated: (new Date()).getTime() } }, { returnOriginal: false }, (err, roomFound) => {
+        if (roomFound) {
+            db.collection('devices').deleteOne({ _id: mongoDB.ObjectID(deviceId), roomId: roomId }, (err, res) => {
+                cb(err, res["result"]);
+            });
+        } else {
+            cb(err, { code: 403 });
+        }
+    });
 }
 
 function setDeviceStatus(userId, deviceInfo, cb) {
@@ -111,9 +121,9 @@ function setDeviceStatus(userId, deviceInfo, cb) {
         if (roomFound) {
             db.collection('devices').findOneAndUpdate({ _id: mongoDB.ObjectID(deviceInfo._id), roomId: roomId }, { $set: { value: +deviceInfo.value, lastUpdated: lt } }, { returnOriginal: false }, (err, deviceData) => {
                 console.log(deviceData);
-                cb(err, {code: 200, "device": deviceData["value"]});
+                cb(err, { code: 200, "device": deviceData["value"] });
             });
-        }else{
+        } else {
             cb(err, { code: 403 });
         }
     });
@@ -125,6 +135,28 @@ function getDevice(userId, roomId, deviceId, cb) {
             db.collection('devices').findOne({ _id: mongoDB.ObjectID(deviceId), roomId: roomId }, (err, deviceData) => {
                 cb(err, deviceData);
             });
+        }
+    });
+}
+
+function addGuest(userId, roomId, guest, cb) {
+    getUser(guest, (user) => {
+        db.collection('rooms').findOneAndUpdate({ _id: mongoDB.ObjectID(roomId), owner: userId }, { $set: { lastUpdated: (new Date()).getTime() }, $push: { guests: user._id } }, { returnOriginal: false }, (err, roomFound) => {
+            if (roomFound) {
+                cb(err, roomFound);
+            } else {
+                cb(err, { code: 403 });
+            }
+        });
+    });
+}
+
+function removeGuest(userId, roomId, guestId, cb) {
+    db.collection('rooms').findOneAndUpdate({ _id: mongoDB.ObjectID(roomId), owner: userId }, { $set: { lastUpdated: (new Date()).getTime() }, $pop: { guests: guestId } }, { returnOriginal: false }, (err, roomFound) => {
+        if (roomFound) {
+            cb(err, roomFound);
+        } else {
+            cb(err, { code: 403 });
         }
     });
 }

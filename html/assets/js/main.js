@@ -99,6 +99,7 @@ class Room extends Root {
         this._attr.iconSrc = attr.roomIcon || this._attr.iconSrc;
         this._attr.type = +attr.type || 0;
         this._attr.isNew = attr.isNew;
+        this._attr.guests = attr.guests;
         this._attr.isHidden = Boolean(attr.isHidden);
         this._attr.stats = [+attr.usage || 0, +attr.online || 0, +attr.devices || 0];
         this._elem.beforeElem = beforeElem;
@@ -109,6 +110,7 @@ class Room extends Root {
         this._attr.name = attr.roomName || this._attr.name; //saniized name from server
         this._attr.iconSrc = attr.roomIcon || this._attr.iconSrc; //sanitized icon src from server
         this._attr.stats = [+attr.usage || 0, +attr.online || 0, +attr.devices || 0];
+        this._attr.guests = attr.guests;
         this.render(true);
     }
 
@@ -189,13 +191,16 @@ class Room extends Root {
 class Device extends Root {
     constructor(parent, attr, beforeElem, cb) {
         super(parent, attr._id);
+        let online;
         this._attr.name = attr.deviceName || this._attr.name;
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc;
         this._attr.isNew = Boolean(attr.isNew);
         this._attr.steps = +attr.steps || 10;
         this.isRegulator = +attr.deviceType === 1;
-        this._attr.stats = [+attr.usage || 0, +attr.online || 0];
         this._attr.value = +attr.value >= 0 ? +attr.value : 0;
+        this._attr.wattage = +attr.wattage || 0;
+        online = this._attr.value ? ((new Date()).getTime() - attr.lastUpdated) / (60 * 1000) >> 0 : 0;
+        this._attr.stats = [this._attr.wattage * this._attr.value / 100, online];
         this._elem.stats = [];
         this._elem.beforeElem = beforeElem;
         this._attr.btnRAF = false;
@@ -208,10 +213,13 @@ class Device extends Root {
     }
 
     update(attr) {
+        let online;
         //code to update on server
         this._attr.name = attr.deviceName || this._attr.name; //saniized name from server
         this._attr.value = +attr.value || 0;
-        this._attr.stats = [+attr.usage || 0, +attr.online || 0];
+        this._attr.wattage = +attr.wattage || 0;
+        online = this._attr.value ? ((new Date()).getTime() - attr.lastUpdated) / (3600 * 1000) : 0;
+        this._attr.stats = [this._attr.wattage * this._attr.value / 100, online];
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc; //sanitized icon src from server
         this.render(true);
     }

@@ -99,6 +99,7 @@ class Room extends Root {
         this._attr.iconSrc = attr.roomIcon || this._attr.iconSrc;
         this._attr.type = +attr.type || 0;
         this._attr.isNew = attr.isNew;
+        this._attr.isHidden = Boolean(attr.isHidden);
         this._attr.stats = [+attr.usage || 0, +attr.online || 0, +attr.devices || 0];
         this._elem.beforeElem = beforeElem;
         this.render(false);
@@ -119,7 +120,9 @@ class Room extends Root {
         super._draw(isUpdate);
         if (!isUpdate) {
             this._elem.root.classList.add('room');
-            if (this._attr.isNew) {
+            if(this._attr.isHidden){
+                this._elem.root.style = 'opacity:0;transform:scale(0)';
+            }else if (this._attr.isNew) {
                 this._elem.root.className += ' hidden';
                 setTimeout(() => {
                     this.show();

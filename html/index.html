@@ -312,7 +312,7 @@
 
                 });
                 rooms.forEach(room => {
-                    if (room._attr._id === id) {
+                    if (room._attr && room._attr._id === id) {
                         room.isSelected = true;
                     } else {
                         room.hide(false);
@@ -502,14 +502,17 @@
         function reqAllRooms(userId, isFirst) {
             sendRequest('GET', '/api/rooms/list?lt=' + lastUpdated, (res) => {
                 let lt = lastUpdated, idx = 0;
-                for (let i = res.length - 1; i >= 0;i--) {
+                for (let i = res.length - 1; i >= 0; i--) {
                     let roomsContainer = res[i].owner === userId ? ownRooms : guestRooms;
                     if (roomsIdMap[res[i]._id] === undefined) {
                         roomsIdMap[res[i]._id] = rooms.length;
                         res[i].type = res[i].owner === userId ? 0 : 1;
                         res[i].roomIcon = 'assets/images/home/' + res[i].roomIcon;
-                        if(!isFirst){
+                        if (!isFirst) {
                             res[i].isNew = true;
+                        }
+                        if (roomOpened) {
+                            res[i].isHidden = true;
                         }
                         rooms.push(new Room(roomsContainer, res[i], roomsContainer.getElementsByClassName('room')[0]));
                     }
@@ -536,6 +539,9 @@
                 res.roomIcon = 'assets/images/home/' + res.roomIcon;
                 res.isNew = true;
                 roomsIdMap[res._id] = rooms.length;
+                if (roomOpened) {
+                    res.isHidden = true;
+                }
                 rooms.push(new Room(ownRooms, res, ownRooms.getElementsByClassName('room')[0]));
                 btn.removeAttribute('disabled');
             }, roomData);

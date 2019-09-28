@@ -104,8 +104,9 @@ apiRouter.post('/devices/add', (req, res)=> {
 
 apiRouter.get('/devices/list/:roomId', (req, res) => {
     if(sendHeaders(req, res)){
-        let roomId = req.params.roomId;
-        getDeviceListByRoom(req.session.user._id, roomId, (err, devices) => {
+        let roomId = req.params.roomId, 
+        lt = +req.query.lt || 0;
+        getDeviceListByRoom(req.session.user._id, roomId, lt, (err, devices) => {
             console.log(err);
             res.end(JSON.stringify(devices));
         });

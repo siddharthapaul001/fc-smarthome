@@ -207,6 +207,8 @@ class Device extends Root {
     update(attr) {
         //code to update on server
         this._attr.name = attr.deviceName || this._attr.name; //saniized name from server
+        this._attr.value = +attr.value || 0;
+        this._attr.stats = [+attr.usage || 0, +attr.online || 0];
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc; //sanitized icon src from server
         this.render(true);
     }
@@ -230,7 +232,7 @@ class Device extends Root {
             icon = document.createElement('span');
             icon.className = 'fa fa-trash';
             this._elem.btnDelete.appendChild(icon);
-            this._elem.btnDelete.setAttribute('onclick', 'confirmRemoveDevice(' + this._attr._id + ')');
+            this._elem.btnDelete.setAttribute('onclick', 'confirmRemoveDevice(\'' + this._attr._id + '\')');
             equipmentHead.appendChild(this._elem.deviceName);
             equipmentHead.appendChild(this._elem.btnDelete);
 

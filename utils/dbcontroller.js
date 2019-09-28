@@ -87,12 +87,11 @@ function addDevice(userId, deviceData, cb) {
     });
 }
 
-function getDeviceListByRoom(userId, roomId, cb) {
+function getDeviceListByRoom(userId, roomId, lt, cb) {
     console.log(userId, roomId);
     db.collection('rooms').findOne({ $or: [{ _id: mongoDB.ObjectID(roomId), owner: userId }, { _id: mongoDB.ObjectID(roomId), guests: userId }] }, (err, roomFound) => {
-        console.log(roomFound);
         if (roomFound) {
-            db.collection('devices').find({ roomId }).toArray((err, devices) => {
+            db.collection('devices').find({ roomId, lastUpdated: {$gt: lt} }).toArray((err, devices) => {
                 cb(err, { code: 200, devices });
             });
         } else {

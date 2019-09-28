@@ -103,7 +103,7 @@
 
     <script>
         var roomCategory = 1, requestedToggle = false, rooms = [], equipments = [], roomOpened = false, devices = [], guests = [],
-            deviceIdMap = {}, roomsIdMap = {}, iconIndex = 0, userId, lastUpdated = 0, selectedRoomId;
+            deviceIdMap = {}, roomsIdMap = {}, iconIndex = 0, userId, lastUpdated = 0, selectedRoomId, n;
 
         const roomIcons = ['001-wardrobe.png', '012-rack.png', '025-closet.png', '041-chandelier.png', 'bed.png', 'dog.png', 'mirror.png', 'window.png',
             '002-tv-table.png', '015-desk-1.png', '029-double-bed.png', '044-bunk-bed.png', 'bookcase.png', 'door-1.png', 'shower.png',
@@ -221,28 +221,8 @@
                     type: 1
                 }
             ],
-            deviceAttrs = [
-                {
-                    _id: '199',
-                    name: 'Bulb',
-                    deviceType: 0
-                },
-                {
-                    _id: '209',
-                    name: 'AC',
-                    deviceType: 1
-                },
-                {
-                    _id: '299',
-                    name: 'Fan',
-                    deviceType: 1
-                },
-                {
-                    _id: '19223',
-                    name: 'Light',
-                    deviceType: 0
-                }
-            ], guestArr = [
+            roomDeviceMap = {}
+            , guestArr = [
                 {
                     _id: '1',
                     name: 'Siddhartha Paul',
@@ -260,10 +240,10 @@
         //     rooms.push(new Room(ownRooms, roomAttrs[i], true));
         // }
 
-        for (let i = gRoomAttrs.length - 1; i >= 0; i--) {
-            roomsIdMap[gRoomAttrs[i]._id] = rooms.length;
-            rooms.push(new Room(guestRooms, gRoomAttrs[i], true));
-        }
+        // for (let i = gRoomAttrs.length - 1; i >= 0; i--) {
+        //     roomsIdMap[gRoomAttrs[i]._id] = rooms.length;
+        //     rooms.push(new Room(guestRooms, gRoomAttrs[i], true));
+        // }
 
         // for (let i = deviceAttrs.length - 1; i >= 0; i--) {
         //     deviceIdMap[deviceAttrs[i]._id] = devices.length;
@@ -314,7 +294,7 @@
 
                     setTimeout(() => {
                         rooms[selectedRoomIdx].fadeIn();
-                        reqDeviceList(id);
+                        renderDeviceList(id);
                         requestAnimationFrame(() => {
                             rect = roomsContainer.getBoundingClientRect();
                             roomInside.style = 'left:1%;top:' + (rect.top + 20) + 'px;width:98%;height:' + (window.innerHeight - rect.top - 40) + 'px;';
@@ -343,6 +323,7 @@
 
         function closeRoom() {
             let roomsContainer = roomCategory === 1 ? ownRooms : guestRooms;
+            selectedRoomId = undefined;
             if (roomOpened) {
                 requestAnimationFrame(() => {
                     equipmentContainer.style.opacity = 0;
@@ -514,24 +495,28 @@
             console.log(deviceId, value);
             sendRequest('POST', '/api/devices/status/' + selectedRoomId + '/' + deviceId, (res) => {
                 console.log(res);
-            }, {value});
+            }, { value });
             //console.log(selectedRoomId, deviceId, value);
         }
 
-        function reqAllRooms(userId) {
+        function reqAllRooms(userId, isFirst) {
             sendRequest('GET', '/api/rooms/list?lt=' + lastUpdated, (res) => {
-                let maxLastUpdated = lastUpdated, roomsToFetch = [];
-                for (let i = res.length - 1; i >= 0; i--) {
-                    roomsIdMap[res[i]._id] = rooms.length;
-                    if (res[i].lastUpdated > maxLastUpdated) {
-                        maxLastUpdated = res[i].lastUpdated;
+                let lt = lastUpdated, idx = 0;
+                for (let i = res.length - 1; i >= 0;i--) {
+                    let roomsContainer = res[i].owner === userId ? ownRooms : guestRooms;
+                    if (!roomsIdMap[res[i]._id]) {
+                        roomsIdMap[res[i]._id] = rooms.length;
+                        res[i].type = res[i].owner === userId ? 0 : 1;
+                        res[i].roomIcon = 'assets/images/home/' + res[i].roomIcon;
+                        if(!isFirst){
+                            res[i].isNew = true;
+                        }
+                        rooms.push(new Room(roomsContainer, res[i], roomsContainer.getElementsByClassName('room')[0]));
                     }
                     if (res[i].lastUpdated > lastUpdated) {
-                        roomsToFetch.push(res[i]._id);
+                        lastUpdated = res[i].lastUpdated;
                     }
-                    res[i].type = res[i].owner === userId ? 0 : 1;
-                    res[i].roomIcon = 'assets/images/home/' + res[i].roomIcon;
-                    rooms.push(new Room(res[i].owner === userId ? ownRooms : guestRooms, res[i]));
+                    reqDeviceList(res[i]._id, lt);
                 }
             });
         }
@@ -585,29 +570,65 @@
             }, deviceData);
         }
 
-        function reqDeviceList(roomId) {
-            console.log(roomId);
-            deviceIdMap = {};
-            equipmentContainer.innerHTML = '';
-            devices = [];
-            sendRequest('GET', '/api/devices/list/' + roomId, (res) => {
+        function reqDeviceList(roomId, lt = 0) {
+
+            sendRequest('GET', '/api/devices/list/' + roomId + '?lt=' + lt, (res) => {
                 console.log(res);
                 if (res.code === 200) {
-                    for (let i = res.devices.length - 1; i >= 0; i--) {
-                        deviceIdMap[res.devices[i]._id] = devices.length;
-                        devices.push(new Device(equipmentContainer, res.devices[i], undefined, reqUpdateDeviceStatus));
+                    if (roomDeviceMap[roomId]) {
+                        res.devices.forEach(device => {
+                            let deviceFound = false;
+                            for (let i = 0; i < roomDeviceMap[roomId].length && !deviceFound; i++) {
+                                if (roomDeviceMap[roomId][i]._id === device._id) {
+                                    roomDeviceMap[roomId][i] = device;
+                                    deviceFound = true;
+                                }
+                            }
+                            if (roomId === selectedRoomId) {
+                                if (!deviceFound) {
+                                    //new device
+                                    deviceIdMap[device._id] = devices.length;
+                                    device['isNew'] = true;
+                                    devices.push(new Device(equipmentContainer, device, equipmentContainer.getElementsByClassName('equipment')[0], reqUpdateDeviceStatus))
+                                } else {
+                                    devices[deviceIdMap[device._id]].update(device);
+                                }
+                            }
+                        });
+                    } else {
+                        roomDeviceMap[roomId] = res.devices;
+                        // if (roomId === selectedRoomId) {
+
+                        //     for (let i = res.devices.length - 1; i >= 0; i--) {
+                        //         deviceIdMap[res.devices[i]._id] = devices.length;
+                        //         devices.push(new Device(equipmentContainer, res.devices[i], undefined, reqUpdateDeviceStatus));
+                        //     }
+                        // }
                     }
-                }else{
+                } else {
                     // snackbar message: forbidden acces
                 }
             });
+        }
+
+        function renderDeviceList(roomId) {
+            equipmentContainer.innerHTML = '';
+            deviceIdMap = {};
+            devices = [];
+            for (let i = roomDeviceMap[roomId].length - 1; i >= 0; i--) {
+                deviceIdMap[roomDeviceMap[roomId][i]._id] = devices.length;
+                devices.push(new Device(equipmentContainer, roomDeviceMap[roomId][i], undefined, reqUpdateDeviceStatus));
+            }
         }
 
         function initView() {
             sendRequest('GET', '/api/getprofile', (data) => {
                 document.getElementById('username').innerHTML = data['name'];
                 userId = data['_id'];
-                reqAllRooms(userId);
+                reqAllRooms(userId, true);
+                n = setInterval(() => {
+                    reqAllRooms(userId);
+                }, 5000);
             });
             requestAnimationFrame(() => {
                 ownRooms.setAttribute('style', 'max-height:' + (window.innerHeight - ownRooms.offsetTop - 20) + 'px;');

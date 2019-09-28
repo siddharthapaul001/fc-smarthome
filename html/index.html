@@ -504,7 +504,7 @@
                 let lt = lastUpdated, idx = 0;
                 for (let i = res.length - 1; i >= 0;i--) {
                     let roomsContainer = res[i].owner === userId ? ownRooms : guestRooms;
-                    if (!roomsIdMap[res[i]._id]) {
+                    if (roomsIdMap[res[i]._id] === undefined) {
                         roomsIdMap[res[i]._id] = rooms.length;
                         res[i].type = res[i].owner === userId ? 0 : 1;
                         res[i].roomIcon = 'assets/images/home/' + res[i].roomIcon;

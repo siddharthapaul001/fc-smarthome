@@ -1,5 +1,5 @@
 const apiRouter = require('express').Router();
-const { getUser, addRoom, removeRoom, getRoomsByUser } = require('../utils/dbcontroller');
+const { getUser, addRoom, removeRoom, getRoomsByUser, addDevice, removeDevice, getDeviceListByRoom, setDeviceStatus, getDevice } = require('../utils/dbcontroller');
 
 var commonHeaders = {
     'Content-Type': 'application/json'
@@ -89,6 +89,56 @@ apiRouter.get('/rooms/list', (req, res) => {
     }else{
         res.end(JSON.stringify({}));
     }
-})
+});
+
+apiRouter.post('/devices/add', (req, res)=> {
+    if(sendHeaders(req, res)){
+        addDevice(req.session.user._id, req.body, (err, newDevice) => {
+            console.log(err);
+            res.end(JSON.stringify(newDevice));
+        });
+    }else{
+        res.end(JSON.stringify({}));
+    }
+});
+
+apiRouter.get('/devices/list/:roomId', (req, res) => {
+    if(sendHeaders(req, res)){
+        let roomId = req.params.roomId;
+        getDeviceListByRoom(req.session.user._id, roomId, (err, devices) => {
+            console.log(err);
+            res.end(JSON.stringify(devices));
+        });
+    }else{
+        res.end(JSON.stringify({}));
+    }
+});
+
+apiRouter.post('/devices/status/:roomId/:deviceId', (req, res) => {
+    if(sendHeaders(req, res) && +req.body.value >= 0){
+        let deviceInfo = { 
+            _id: req.params.deviceId,
+            roomId: req.params.roomId,
+            value: +req.body.value
+        };
+        setDeviceStatus(req.session.user._id, deviceInfo, (err, device) => {
+            res.end(JSON.stringify(device));
+        });
+    }else{
+        res.end(JSON.stringify({}));
+    }
+});
+
+apiRouter.get('/devices/status/:roomId/:deviceId', (req, res) => {
+    if(sendHeaders(req, res)){
+        let deviceId = req.params.deviceId,
+        roomId = req.params.roomId;
+        getDevice(req.session.user._id, roomId, deviceId, (err, device) =>{
+            res.end(JSON.stringify(device));
+        });
+    }else{
+        res.end(JSON.stringify({}));
+    }
+});
 
 module.exports = { apiRouter, getUser };

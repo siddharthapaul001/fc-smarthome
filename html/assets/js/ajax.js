@@ -5,6 +5,10 @@ function sendRequest(method, url, cb, data) {
             cb(JSON.parse(xhr.responseText));
         }
     };
+    xhr.onerror = function(){
+        //show snackbar message network error
+        console.log('error');
+    }
     xhr.open(method, url, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(data ? JSON.stringify(data) : undefined);

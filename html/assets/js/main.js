@@ -186,11 +186,11 @@ class Room extends Root {
 class Device extends Root {
     constructor(parent, attr, beforeElem, cb) {
         super(parent, attr._id);
-        this._attr.name = attr.name || this._attr.name;
+        this._attr.name = attr.deviceName || this._attr.name;
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc;
         this._attr.isNew = Boolean(attr.isNew);
         this._attr.steps = +attr.steps || 10;
-        this.isRegulator = Boolean(attr.isRegulator);
+        this.isRegulator = +attr.deviceType === 1;
         this._attr.stats = [+attr.usage || 0, +attr.online || 0];
         this._attr.value = +attr.value >= 0 ? +attr.value : 0;
         this._elem.stats = [];
@@ -206,7 +206,7 @@ class Device extends Root {
 
     update(attr) {
         //code to update on server
-        this._attr.name = attr.name || this._attr.name; //saniized name from server
+        this._attr.name = attr.deviceName || this._attr.name; //saniized name from server
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc; //sanitized icon src from server
         this.render(true);
     }
@@ -216,6 +216,12 @@ class Device extends Root {
         super._draw(isUpdate);
         if (!isUpdate) {
             this._elem.root.classList.add('equipment');
+            if (this._attr.isNew) {
+                this._elem.root.className += ' hidden';
+                setTimeout(() => {
+                    this.show();
+                }, 300);
+            }
             equipmentHead = document.createElement('div');
             this._elem.deviceName = document.createElement('h3');
             equipmentHead.className = 'equipment-head';
@@ -315,7 +321,7 @@ class Device extends Root {
         } else {
             if (this._attr.value === 0) {
                 this._elem.selected.classList.add('off');
-            }else{
+            } else {
                 this._elem.selected.classList.remove('off');
             }
         }

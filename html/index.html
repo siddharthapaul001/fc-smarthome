@@ -66,17 +66,15 @@
             <div id="room-content" style="display:none;">
                 <div class="in-room-btns clearfix">
                     <span id="room-name" class="room-name"></span>
-                    <button title="Add Device" class="btn btn-close" onclick="showAddDevice()">
+                    <button title="Add Device" id="btn-add-device" class="btn btn-close" onclick="showAddDevice()">
                         <span class="fa fa-2x fa-plus"></span></button>
                     <button title="List of Allowed Guests" class="btn btn-close" onclick="showGuests()">
                         <span class="fa fa-2x fa-users"></span></button>
                     <button id="btn-close-room" class="btn btn-close" onclick="closeRoom()"><span
                             class="fa fa-2x fa-remove"></span></button>
                 </div>
-                <div class="equipments">
-                    <div id="equipments" class="equipments-wraper scroll" style="opacity: 0;overflow: hidden;">
-
-
+                <div class="equipments scroll">
+                    <div id="equipments" class="equipments-wraper" style="opacity: 0;overflow: hidden;">
                     </div>
                 </div>
             </div>
@@ -105,7 +103,7 @@
 
     <script>
         var roomCategory = 1, requestedToggle = false, rooms = [], equipments = [], roomOpened = false, devices = [], guests = [],
-            deviceIdMap = {}, roomsIdMap = {}, iconIndex = 0, userId;
+            deviceIdMap = {}, roomsIdMap = {}, iconIndex = 0, userId, lastUpdated = 0, selectedRoomId;
 
         const roomIcons = ['001-wardrobe.png', '012-rack.png', '025-closet.png', '041-chandelier.png', 'bed.png', 'dog.png', 'mirror.png', 'window.png',
             '002-tv-table.png', '015-desk-1.png', '029-double-bed.png', '044-bunk-bed.png', 'bookcase.png', 'door-1.png', 'shower.png',
@@ -227,22 +225,22 @@
                 {
                     _id: '199',
                     name: 'Bulb',
-                    isRegulator: false
+                    deviceType: 0
                 },
                 {
                     _id: '209',
                     name: 'AC',
-                    isRegulator: true
+                    deviceType: 1
                 },
                 {
                     _id: '299',
                     name: 'Fan',
-                    isRegulator: true
+                    deviceType: 1
                 },
                 {
                     _id: '19223',
                     name: 'Light',
-                    isRegulator: false
+                    deviceType: 0
                 }
             ], guestArr = [
                 {
@@ -267,10 +265,10 @@
             rooms.push(new Room(guestRooms, gRoomAttrs[i], true));
         }
 
-        for (let i = deviceAttrs.length - 1; i >= 0; i--) {
-            deviceIdMap[deviceAttrs[i]._id] = devices.length;
-            devices.push(new Device(equipmentContainer, deviceAttrs[i], undefined, reqUpdateDeviceStatus));
-        }
+        // for (let i = deviceAttrs.length - 1; i >= 0; i--) {
+        //     deviceIdMap[deviceAttrs[i]._id] = devices.length;
+        //     devices.push(new Device(equipmentContainer, deviceAttrs[i], undefined, reqUpdateDeviceStatus));
+        // }
 
         function changeRoomIcon(num) {
             iconIndex += num;
@@ -299,7 +297,8 @@
         }
 
         function openRoom(selectedRoom, id) {
-            let selectedRoomIdx, roomsContainer = roomCategory === 1 ? ownRooms : guestRooms;
+            let selectedRoomIdx = roomsIdMap[id], roomsContainer = roomCategory === 1 ? ownRooms : guestRooms;
+            selectedRoomId = id;
 
             if (!roomOpened) {
                 roomOpened = true;
@@ -315,11 +314,13 @@
 
                     setTimeout(() => {
                         rooms[selectedRoomIdx].fadeIn();
+                        reqDeviceList(id);
                         requestAnimationFrame(() => {
                             rect = roomsContainer.getBoundingClientRect();
                             roomInside.style = 'left:1%;top:' + (rect.top + 20) + 'px;width:98%;height:' + (window.innerHeight - rect.top - 40) + 'px;';
                             roomContent.style.display = 'block';
                             document.getElementById('room-name').innerHTML = rooms[selectedRoomIdx]._attr.name;
+                            document.getElementById('btn-add-device').setAttribute('onclick', 'showAddDevice(\'' + id + '\')');
                             setTimeout(() => {
                                 requestAnimationFrame(() => {
                                     equipmentContainer.setAttribute('style', 'height:' + (roomInside.offsetHeight - 50) + 'px; opacity:1;');
@@ -330,11 +331,9 @@
                     }, 100);
 
                 });
-                rooms.forEach((room, idx) => {
-                    if (room._elem.root === selectedRoom) {
-                        //room.expand();
+                rooms.forEach(room => {
+                    if (room._attr._id === id) {
                         room.isSelected = true;
-                        selectedRoomIdx = idx;
                     } else {
                         room.hide(false);
                     }
@@ -458,14 +457,15 @@
             showModal('Add Room', htmlStr);
         }
 
-        function showAddDevice() {
+        function showAddDevice(roomId) {
             let htmlStr = '<div id="card-add-room" class="device-add">' +
                 '<div class="txt-device-name">' +
-                '<input class="inp" id="inp-room-name" type="text" placeholder="Name the device" />' +
+                '<input class="inp" id="inp-device-name" type="text" placeholder="Name the device" />' +
                 '</div>' +
                 '<div class="txt-device-type">' +
                 '<span>Device Type: </span><input type="radio" name="device-type" id="device-type-switch" value="switch" checked/> <label for="device-type-switch">Switch</label>' +
                 '<input type="radio" name="device-type" id="device-type-regulator" value="regulator" /> <label for="device-type-regulator">Regulator</label>' +
+                '<input type="hidden" id="room-id" value="' + roomId + '">' +
                 '</div>' +
                 '<div>' +
                 '<button class="btn btn-add-room" onclick="reqAddDevice()">+ Add device</button>' +
@@ -512,12 +512,23 @@
 
         function reqUpdateDeviceStatus(deviceId, value) {
             console.log(deviceId, value);
+            sendRequest('POST', '/api/devices/status/' + selectedRoomId + '/' + deviceId, (res) => {
+                console.log(res);
+            }, {value});
+            //console.log(selectedRoomId, deviceId, value);
         }
 
-        function reqAllRooms(userId, lastUpdated) {
+        function reqAllRooms(userId) {
             sendRequest('GET', '/api/rooms/list?lt=' + lastUpdated, (res) => {
+                let maxLastUpdated = lastUpdated, roomsToFetch = [];
                 for (let i = res.length - 1; i >= 0; i--) {
                     roomsIdMap[res[i]._id] = rooms.length;
+                    if (res[i].lastUpdated > maxLastUpdated) {
+                        maxLastUpdated = res[i].lastUpdated;
+                    }
+                    if (res[i].lastUpdated > lastUpdated) {
+                        roomsToFetch.push(res[i]._id);
+                    }
                     res[i].type = res[i].owner === userId ? 0 : 1;
                     res[i].roomIcon = 'assets/images/home/' + res[i].roomIcon;
                     rooms.push(new Room(res[i].owner === userId ? ownRooms : guestRooms, res[i]));
@@ -555,11 +566,48 @@
             }, { _id: roomId });
         }
 
+        function reqAddDevice() {
+            let isRegulator = document.getElementById('device-type-regulator').checked,
+                deviceData = {
+                    deviceName: document.getElementById('inp-device-name').value,
+                    deviceType: isRegulator ? 1 : 0,
+                    roomId: document.getElementById('room-id').value,
+                    wattage: isRegulator ? 5 : 1,
+                }
+            if (isRegulator) {
+                deviceData['range'] = [0, 100];
+                deviceData['steps'] = 10;
+            }
+            sendRequest('POST', '/api/devices/add', (res) => {
+                closeModal();
+                res.isNew = true;
+                devices.push(new Device(equipmentContainer, res, equipmentContainer.getElementsByClassName('equipment')[0], reqUpdateDeviceStatus));
+            }, deviceData);
+        }
+
+        function reqDeviceList(roomId) {
+            console.log(roomId);
+            deviceIdMap = {};
+            equipmentContainer.innerHTML = '';
+            devices = [];
+            sendRequest('GET', '/api/devices/list/' + roomId, (res) => {
+                console.log(res);
+                if (res.code === 200) {
+                    for (let i = res.devices.length - 1; i >= 0; i--) {
+                        deviceIdMap[res.devices[i]._id] = devices.length;
+                        devices.push(new Device(equipmentContainer, res.devices[i], undefined, reqUpdateDeviceStatus));
+                    }
+                }else{
+                    // snackbar message: forbidden acces
+                }
+            });
+        }
+
         function initView() {
             sendRequest('GET', '/api/getprofile', (data) => {
                 document.getElementById('username').innerHTML = data['name'];
                 userId = data['_id'];
-                reqAllRooms(userId, 0);
+                reqAllRooms(userId);
             });
             requestAnimationFrame(() => {
                 ownRooms.setAttribute('style', 'max-height:' + (window.innerHeight - ownRooms.offsetTop - 20) + 'px;');

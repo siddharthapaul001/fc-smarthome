@@ -807,13 +807,19 @@ nav li:hover .submenu{
 
 .msg-center-container{
     display: flex;
-    height:90vh;
+    height:60vh;
     color: #fafafa;
     font-size: 48px;
     text-align: center;
     justify-content: center;
     align-items: center;
     font-weight: 600;
+}
+
+@media (min-width: 576px){
+    .msg-center-container{
+        height: 90vh;
+    }
 }
 
 .msg-center{
@@ -836,6 +842,10 @@ nav li:hover .submenu{
     text-align: center;
     opacity: 0;
     animation: animMsg 2s;
+}
+
+.msg.small{
+    font-size: xx-large;
 }
 
 .msg-center-container #msg-1{

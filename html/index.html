@@ -395,7 +395,11 @@
         function reqUpdateDeviceStatus(deviceId, value) {
             console.log(deviceId, value);
             sendRequest('POST', '/api/devices/status/' + selectedRoomId + '/' + deviceId, (res) => {
-                console.log(res);
+                if (res.code === 200) {
+                    if (deviceIdMap[deviceId]) {
+                        devices[deviceIdMap[deviceId]].update(res.device);
+                    }
+                }
             }, { value });
             //console.log(selectedRoomId, deviceId, value);
         }
@@ -478,11 +482,9 @@
         }
 
         function reqDeviceList(roomId, lt = 0) {
-
             sendRequest('GET', '/api/devices/list/' + roomId + '?lt=' + lt, (res) => {
-                console.log(res);
                 if (res.code === 200) {
-                    if (roomDeviceMap[roomId]) {
+                    if (roomDeviceMap[roomId] !== undefined) {
                         res.devices.forEach(device => {
                             let deviceFound = false;
                             for (let i = 0; i < roomDeviceMap[roomId].length && !deviceFound; i++) {
@@ -512,10 +514,23 @@
                         //     }
                         // }
                     }
+                    if(roomsIdMap[roomId] !== undefined){
+                        calculateStats(roomId);
+                    }
                 } else {
                     // snackbar message: forbidden acces
                 }
             });
+        }
+
+        function calculateStats(roomId){
+            let online = 0, total = 0, usage = 0;
+            roomDeviceMap[roomId].forEach(device => {
+                usage += device.wattage * device.value / 100;
+                online += device.value > 0;
+                total++;
+            });
+            rooms[roomsIdMap[roomId]].update({usage, online, devices: total});
         }
 
         function renderDeviceList(roomId) {

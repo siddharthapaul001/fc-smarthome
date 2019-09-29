@@ -517,10 +517,10 @@ nav li:hover .submenu{
 .stat-online{
     color: #94f100;
 }
-
+/* 
 .stat-online::after{
     content: 'hours';
-}
+} */
 
 .equipment span{
     display: inline-block;

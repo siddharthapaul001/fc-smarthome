@@ -42,8 +42,12 @@ mongoClient.connect('mongodb+srv://' + user + ':' + pass + '@sidsmarthome-jxheb.
         }
     });
 
-function getUser(user, cb) {
-    db.collection('users').findOneAndUpdate({ $or: [{ googleId: user.googleId }, { email: user.email }] }, { $set: user },
+function getUser(user, cb, isGuest) {
+    let updateUser = user;
+    if(isGuest){
+        updateUser = {email: user.email};
+    }
+    db.collection('users').findOneAndUpdate({ $or: [{ googleId: user.googleId }, { email: user.email }] }, { $set: updateUser },
         { returnOriginal: false },
         (err, data) => {
             if (!data["value"]) {
@@ -141,14 +145,14 @@ function getDevice(userId, roomId, deviceId, cb) {
 
 function addGuest(userId, roomId, guest, cb) {
     getUser(guest, (user) => {
-        db.collection('rooms').findOneAndUpdate({ _id: mongoDB.ObjectID(roomId), owner: userId }, { $set: { lastUpdated: (new Date()).getTime() }, $push: { guests: user._id } }, { returnOriginal: false }, (err, roomFound) => {
+        db.collection('rooms').findOneAndUpdate({ _id: mongoDB.ObjectID(roomId), owner: userId }, { $set: { lastUpdated: (new Date()).getTime() }, $addToSet: { guests: user._id } }, { returnOriginal: false }, (err, roomFound) => {
             if (roomFound) {
                 cb(err, roomFound);
             } else {
                 cb(err, { code: 403 });
             }
         });
-    });
+    }, true);
 }
 
 function removeGuest(userId, roomId, guestId, cb) {
@@ -161,4 +165,4 @@ function removeGuest(userId, roomId, guestId, cb) {
     });
 }
 
-module.exports = { mongoClient, getUser, addRoom, removeRoom, getRoomsByUser, addDevice, removeDevice, getDeviceListByRoom, setDeviceStatus, getDevice };
+module.exports = { mongoClient, getUser, addRoom, removeRoom, getRoomsByUser, addDevice, removeDevice, getDeviceListByRoom, setDeviceStatus, getDevice, addGuest, removeGuest };

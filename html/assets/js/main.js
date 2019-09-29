@@ -1,3 +1,27 @@
+function _getTimeString(mins){
+    let timeStr = '', d, h, m = mins;
+    if(mins > 60){
+        h = (mins / 60) >> 0;
+        m = (mins % 60);
+    }
+    if(h > 24){
+        d = (h / 24) >> 0;
+        h = (h % 24);
+    }
+    if(d > 0){
+        timeStr = d + 'd ';
+    }
+    if(h > 0){
+        timeStr += h + 'h ';
+    }
+    timeStr += m + 'm';
+    if(mins === 0){
+        timeStr = 'less than a minute';
+    }
+    return timeStr;
+}
+
+
 class Root {
     constructor(parent, id) {
         if (!(parent instanceof HTMLElement)) {
@@ -174,6 +198,10 @@ class Room extends Root {
         this._elem.icon.setAttribute('alt', this._attr.name);
         this._elem.icon.setAttribute('title', this._attr.name);
 
+        for (let i = 0; i < 3; i++) {
+            this._elem.stats[i].data = ' ' + this._attr.stats[i];
+        }
+
         //icon src related changes --> icon update
         this._elem.icon.src = this._attr.iconSrc;
 
@@ -191,7 +219,6 @@ class Room extends Root {
 class Device extends Root {
     constructor(parent, attr, beforeElem, cb) {
         super(parent, attr._id);
-        let online;
         this._attr.name = attr.deviceName || this._attr.name;
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc;
         this._attr.isNew = Boolean(attr.isNew);
@@ -199,8 +226,8 @@ class Device extends Root {
         this.isRegulator = +attr.deviceType === 1;
         this._attr.value = +attr.value >= 0 ? +attr.value : 0;
         this._attr.wattage = +attr.wattage || 0;
-        online = this._attr.value ? ((new Date()).getTime() - attr.lastUpdated) / (60 * 1000) >> 0 : 0;
-        this._attr.stats = [this._attr.wattage * this._attr.value / 100, online];
+        this._attr.online = this._attr.value ? ((new Date()).getTime() - attr.lastUpdated) / (60 * 1000) >> 0 : 0;
+        this._attr.stats = [this._attr.wattage * this._attr.value / 100, _getTimeString(this._attr.online)];
         this._elem.stats = [];
         this._elem.beforeElem = beforeElem;
         this._attr.btnRAF = false;
@@ -213,13 +240,13 @@ class Device extends Root {
     }
 
     update(attr) {
-        let online;
+        console.log(attr);
         //code to update on server
         this._attr.name = attr.deviceName || this._attr.name; //saniized name from server
-        this._attr.value = +attr.value || 0;
+        this._attr.value = +attr.value >= 0 ? +attr.value : 0;
         this._attr.wattage = +attr.wattage || 0;
-        online = this._attr.value ? ((new Date()).getTime() - attr.lastUpdated) / (3600 * 1000) : 0;
-        this._attr.stats = [this._attr.wattage * this._attr.value / 100, online];
+        this._attr.online = this._attr.value ? ((new Date()).getTime() - attr.lastUpdated) / (3600 * 1000) >> 0 : 0;
+        this._attr.stats = [this._attr.wattage * this._attr.value / 100, _getTimeString(this._attr.online)];
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc; //sanitized icon src from server
         this.render(true);
     }
@@ -329,6 +356,14 @@ class Device extends Root {
         }
 
         this._elem.deviceName.innerHTML = this._attr.name;
+        for (let i = 0; i < 2 && isUpdate; i++) {
+            this._elem.stats[i].data = ' ' + this._attr.stats[i];
+        }
+        if(this._attr.value === 0){
+            this._elem.root.getElementsByClassName('stat-online')[0].style.display = 'none';
+        }else{
+            this._elem.root.getElementsByClassName('stat-online')[0].removeAttribute('style');
+        }
         if (this.isRegulator) {
             this.regulator.setValue(this._attr.value);
         } else {

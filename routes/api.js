@@ -1,5 +1,5 @@
 const apiRouter = require('express').Router();
-const { getUser, addRoom, removeRoom, getRoomsByUser, addDevice, removeDevice, getDeviceListByRoom, setDeviceStatus, getDevice } = require('../utils/dbcontroller');
+const { getUser, addRoom, removeRoom, getRoomsByUser, addDevice, removeDevice, getDeviceListByRoom, setDeviceStatus, getDevice, addGuest, removeGuest } = require('../utils/dbcontroller');
 
 var commonHeaders = {
     'Content-Type': 'application/json'
@@ -141,5 +141,25 @@ apiRouter.get('/devices/status/:roomId/:deviceId', (req, res) => {
         res.end(JSON.stringify({}));
     }
 });
+
+apiRouter.post('/guests/add/:roomId', (req, res) => {
+    if(sendHeaders(req, res)){
+        addGuest(req.session.user._id, req.params.roomId, req.body, (err, guest) => {
+            res.end(JSON.stringify(guest));
+        }); 
+    }else{
+        res.end(JSON.stringify({}));
+    }
+});
+
+apiRouter.post('/guests/remove/:roomId', (req, res) => {
+    if(sendHeaders(req, res)){
+        removeGuest(req.session.user._id, req.params.roomId, req.body, (err, res) => {
+            res.end(JSON.stringify({n:res["n"]}));
+        }); 
+    }else{
+        res.end(JSON.stringify({}));
+    }
+})
 
 module.exports = { apiRouter, getUser };

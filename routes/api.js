@@ -1,5 +1,5 @@
 const apiRouter = require('express').Router();
-const { getUser, addRoom, removeRoom, getRoomsByUser, addDevice, removeDevice, getDeviceListByRoom, setDeviceStatus, getDevice, addGuest, removeGuest } = require('../utils/dbcontroller');
+const { getUser, addRoom, removeRoom, getRoomsByUser, addDevice, removeDevice, getDeviceListByRoom, setDeviceStatus, getDevice, addGuest, removeGuest, getProfile } = require('../utils/dbcontroller');
 
 var commonHeaders = {
     'Content-Type': 'application/json'
@@ -21,6 +21,7 @@ const roomIcons = ['001-wardrobe.png', '012-rack.png', '025-closet.png', '041-ch
 
 // API CODES --> 200 OK, 401 UNAUTHORIZED MEANS REDIRECT TO LOGIN PAGE, 403 FORBIDDEN MEANS MAY LOGGED IN BUT DOESN'T ALLOWED TO PERFORM THE TASK
 
+//need to add csrf validation
 function sendHeaders(req, res) {
     let statusCode = 401;
     if (req.session.user && req.session.user._id) {
@@ -39,6 +40,16 @@ apiRouter.get('/getprofile', (req, res) => {
         res.end(JSON.stringify({}));
     }
 });
+
+apiRouter.post('/getprofilebasic', (req, res) => {
+    if(sendHeaders(req, res)){
+        getProfile(req.body.guestIds, (err, user) => {
+            res.end(JSON.stringify(user));
+        });
+    }else{
+        res.end(JSON.stringify({}));
+    }
+})
 
 apiRouter.post('/rooms/add', (req, res) => {
     let allOk = true, msg = '';
@@ -60,9 +71,9 @@ apiRouter.post('/rooms/add', (req, res) => {
         roomData['guests'] = [];
         roomData['lastUpdated'] = (new Date()).getTime();
         addRoom(roomData, (err, data) => {
-            if(err){
-                console.log(err);   
-            }
+            // if(err){
+            //     console.log(err);   
+            // }
             res.end(JSON.stringify(data));
         })
     }else{
@@ -94,7 +105,7 @@ apiRouter.get('/rooms/list', (req, res) => {
 apiRouter.post('/devices/add', (req, res)=> {
     if(sendHeaders(req, res)){
         addDevice(req.session.user._id, req.body, (err, newDevice) => {
-            console.log(err);
+            // console.log(err);
             res.end(JSON.stringify(newDevice));
         });
     }else{
@@ -123,7 +134,7 @@ apiRouter.get('/devices/list/:roomId', (req, res) => {
         let roomId = req.params.roomId, 
         lt = +req.query.lt || 0;
         getDeviceListByRoom(req.session.user._id, roomId, lt, (err, devices) => {
-            console.log(err);
+            // console.log(err);
             res.end(JSON.stringify(devices));
         });
     }else{
@@ -160,6 +171,7 @@ apiRouter.get('/devices/status/:roomId/:deviceId', (req, res) => {
 
 apiRouter.post('/guests/add/:roomId', (req, res) => {
     if(sendHeaders(req, res)){
+        //need to check whether user adding self
         addGuest(req.session.user._id, req.params.roomId, req.body, (err, guest) => {
             res.end(JSON.stringify(guest));
         }); 
@@ -170,8 +182,8 @@ apiRouter.post('/guests/add/:roomId', (req, res) => {
 
 apiRouter.post('/guests/remove/:roomId', (req, res) => {
     if(sendHeaders(req, res)){
-        removeGuest(req.session.user._id, req.params.roomId, req.body, (err, res) => {
-            res.end(JSON.stringify({n:res["n"]}));
+        removeGuest(req.session.user._id, req.params.roomId, req.body.guestId, (err, result) => {
+            res.end(JSON.stringify({n:result["n"]}));
         }); 
     }else{
         res.end(JSON.stringify({}));

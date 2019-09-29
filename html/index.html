@@ -68,7 +68,8 @@
                     <span id="room-name" class="room-name"></span>
                     <button title="Add Device" id="btn-add-device" class="btn btn-close" onclick="showAddDevice()">
                         <span class="fa fa-2x fa-plus"></span></button>
-                    <button title="List of Allowed Guests" class="btn btn-close" onclick="showGuests()">
+                    <button title="List of Allowed Guests" id="btn-show-guests" class="btn btn-close"
+                        onclick="showGuests()">
                         <span class="fa fa-2x fa-users"></span></button>
                     <button id="btn-close-room" class="btn btn-close" onclick="closeRoom()"><span
                             class="fa fa-2x fa-remove"></span></button>
@@ -185,6 +186,13 @@
                 roomOpened = true;
 
                 requestAnimationFrame(() => {
+                    if (rooms[selectedRoomIdx]._attr.type === 0) {
+                        document.getElementById('btn-add-device').removeAttribute('style');
+                        document.getElementById('btn-show-guests').removeAttribute('style');
+                    }else{
+                        document.getElementById('btn-add-device').style.display = 'none';
+                        document.getElementById('btn-show-guests').style.display = 'none';
+                    }
                     roomsContainer.style.overflow = 'hidden';
                     let rect = selectedRoom.getBoundingClientRect(),
                         styleStr = 'left:' + rect.left + 'px;top:' + rect.top + 'px;';//width:' + rect.width + 'px;height:' + (rect.height - 40) + 'px;';
@@ -307,7 +315,7 @@
 
             btnRemove = document.createElement('button');
             if (!isInput) {
-                btnRemove.setAttribute('onclick', "removeGuest(" + guests.length + ", '" + guestData._id + "')");
+                btnRemove.setAttribute('onclick', "reqRemoveGuest(" + guests.length + ", '" + guestData._id + "')");
                 btnRemove.className = 'btn btn-remove';
                 btnRemove.innerHTML = '<span class="fa fa-trash"></span>';
             } else {
@@ -389,7 +397,21 @@
 
         function showGuests() {
             //may add requestAnimationFrame
-            showModal('Guests', makeGuestList(guestArr));
+            sendRequest('POST', '/api/getprofilebasic', (res) => {
+                showModal('Guests', makeGuestList(res.guests));
+            }, { guestIds: rooms[roomsIdMap[selectedRoomId]]._attr.guests });
+        }
+
+        function reqAddGuest() {
+            let guest = {
+                name: document.getElementById('guest-name').value,
+                email: document.getElementById('guest-email').value
+            }
+            document.getElementById('guest-name').value = '';
+            document.getElementById('guest-email').value = '';
+            sendRequest('POST', '/api/guests/add/' + selectedRoomId, (res) => {
+                closeModal();
+            }, guest);
         }
 
         function reqUpdateDeviceStatus(deviceId, value) {
@@ -420,6 +442,14 @@
                             res[i].isHidden = true;
                         }
                         rooms.push(new Room(roomsContainer, res[i], roomsContainer.getElementsByClassName('room')[0]));
+                    } else {
+                        //room exists so may guest added
+                        res[i].type = res[i].owner === userId ? 0 : 1;
+                        res[i].roomIcon = 'assets/images/home/' + res[i].roomIcon;
+                        if (roomOpened) {
+                            res[i].isHidden = true;
+                        }
+                        rooms[roomsIdMap[res[i]._id]].update(res[i]);
                     }
                     if (res[i].lastUpdated > lastUpdated) {
                         lastUpdated = res[i].lastUpdated;
@@ -563,6 +593,13 @@
             });
         }
 
+        function reqRemoveGuest(btn, guestId){
+            sendRequest('POST', '/api/guests/remove/' + selectedRoomId, (res) => {
+                closeModal();
+                console.log(res);
+            }, {guestId});
+        }
+
         function calculateStats(roomId) {
             let online = 0, total = 0, usage = 0;
             roomDeviceMap[roomId].forEach(device => {
@@ -582,6 +619,7 @@
             for (let i = roomDeviceMap[roomId].length - 1; i >= 0; i--) {
                 if (roomDeviceMap[roomId][i]) {
                     deviceIdMap[roomDeviceMap[roomId][i]._id] = devices.length;
+                    roomDeviceMap[roomId][i].isGuest = rooms[roomsIdMap[roomId]]._attr.type !== 0;
                     devices.push(new Device(equipmentContainer, roomDeviceMap[roomId][i], undefined, reqUpdateDeviceStatus));
                 }
             }

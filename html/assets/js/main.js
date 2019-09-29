@@ -1,21 +1,21 @@
-function _getTimeString(mins){
+function _getTimeString(mins) {
     let timeStr = '', d, h, m = mins;
-    if(mins > 60){
+    if (mins > 60) {
         h = (mins / 60) >> 0;
         m = (mins % 60);
     }
-    if(h > 24){
+    if (h > 24) {
         d = (h / 24) >> 0;
         h = (h % 24);
     }
-    if(d > 0){
+    if (d > 0) {
         timeStr = d + 'd ';
     }
-    if(h > 0){
+    if (h > 0) {
         timeStr += h + 'h ';
     }
     timeStr += m + 'm';
-    if(mins === 0){
+    if (mins === 0) {
         timeStr = 'less than a minute';
     }
     return timeStr;
@@ -133,8 +133,8 @@ class Room extends Root {
     update(attr) {
         this._attr.name = attr.roomName || this._attr.name; //saniized name from server
         this._attr.iconSrc = attr.roomIcon || this._attr.iconSrc; //sanitized icon src from server
-        this._attr.stats = [+attr.usage || 0, +attr.online || 0, +attr.devices || 0];
-        this._attr.guests = attr.guests;
+        this._attr.stats = [+attr.usage || this._attr.stats[0], +attr.online || this._attr.stats[1], +attr.devices || this._attr.stats[2]];
+        this._attr.guests = attr.guests || this._attr.guests;
         this.render(true);
     }
 
@@ -146,9 +146,9 @@ class Room extends Root {
         super._draw(isUpdate);
         if (!isUpdate) {
             this._elem.root.classList.add('room');
-            if(this._attr.isHidden){
+            if (this._attr.isHidden) {
                 this._elem.root.style = 'opacity:0;transform:scale(0)';
-            }else if (this._attr.isNew) {
+            } else if (this._attr.isNew) {
                 this._elem.root.className += ' hidden';
                 setTimeout(() => {
                     this.show();
@@ -226,6 +226,7 @@ class Device extends Root {
         this.isRegulator = +attr.deviceType === 1;
         this._attr.value = +attr.value >= 0 ? +attr.value : 0;
         this._attr.wattage = +attr.wattage || 0;
+        this._attr.isGuest = Boolean(attr.isGuest);
         this._attr.online = this._attr.value ? ((new Date()).getTime() - attr.lastUpdated) / (60 * 1000) >> 0 : 0;
         this._attr.stats = [this._attr.wattage * this._attr.value / 100, _getTimeString(this._attr.online)];
         this._elem.stats = [];
@@ -243,8 +244,8 @@ class Device extends Root {
         console.log(attr);
         //code to update on server
         this._attr.name = attr.deviceName || this._attr.name; //saniized name from server
-        this._attr.value = +attr.value >= 0 ? +attr.value : 0;
-        this._attr.wattage = +attr.wattage || 0;
+        this._attr.value = +attr.value >= 0 ? +attr.value : this._attr.value;
+        this._attr.wattage = +attr.wattage || this._attr.wattage;
         this._attr.online = this._attr.value ? ((new Date()).getTime() - attr.lastUpdated) / (3600 * 1000) >> 0 : 0;
         this._attr.stats = [this._attr.wattage * this._attr.value / 100, _getTimeString(this._attr.online)];
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc; //sanitized icon src from server
@@ -265,15 +266,18 @@ class Device extends Root {
             equipmentHead = document.createElement('div');
             this._elem.deviceName = document.createElement('h3');
             equipmentHead.className = 'equipment-head';
-            this._elem.btnDelete = document.createElement('button');
-            this._elem.btnDelete.className = 'btn btn-remove';
-            icon = document.createElement('span');
-            icon.className = 'fa fa-trash';
-            this._elem.btnDelete.appendChild(icon);
-            this._elem.btnDelete.setAttribute('onclick', 'confirmRemoveDevice(\'' + this._attr._id + '\')');
+            if (!this._attr.isGuest) {
+                this._elem.btnDelete = document.createElement('button');
+                this._elem.btnDelete.className = 'btn btn-remove';
+                icon = document.createElement('span');
+                icon.className = 'fa fa-trash';
+                this._elem.btnDelete.appendChild(icon);
+                this._elem.btnDelete.setAttribute('onclick', 'confirmRemoveDevice(\'' + this._attr._id + '\')');
+            }
             equipmentHead.appendChild(this._elem.deviceName);
-            equipmentHead.appendChild(this._elem.btnDelete);
-
+            if (!this._attr.isGuest) {
+                equipmentHead.appendChild(this._elem.btnDelete);
+            }
             equipmentBody = document.createElement('div');
             switchWraper = document.createElement('div');
             this._elem.selected = document.createElement('div');
@@ -359,9 +363,9 @@ class Device extends Root {
         for (let i = 0; i < 2 && isUpdate; i++) {
             this._elem.stats[i].data = ' ' + this._attr.stats[i];
         }
-        if(this._attr.value === 0){
+        if (this._attr.value === 0) {
             this._elem.root.getElementsByClassName('stat-online')[0].style.display = 'none';
-        }else{
+        } else {
             this._elem.root.getElementsByClassName('stat-online')[0].removeAttribute('style');
         }
         if (this.isRegulator) {

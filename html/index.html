@@ -518,7 +518,7 @@
                             });
                             if (!deviceExits) {
                                 //device deleted remove it
-                                if (opendRoom && selectedRoomId === roomId) {
+                                if (roomOpened && selectedRoomId === roomId) {
                                     devices[deviceIdMap[roomDeviceMap[roomId][i]._id]].hide(true, true);
                                     devices[deviceIdMap[roomDeviceMap[roomId][i]._id]] = null;
                                 }

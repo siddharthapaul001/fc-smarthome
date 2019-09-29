@@ -766,3 +766,88 @@ nav li:hover .submenu{
     background-color: #ff2d57;
     border-color: #ff2d57;
 }
+
+/* msg center container */
+
+@keyframes animMsg{
+    0%{
+        opacity: 0;
+    }
+    50%{
+        opacity: 1;
+    }
+    100%{
+        opacity: 0;
+    }
+}
+
+@keyframes animLastMsg{
+    0%{
+        opacity: 0;
+    }
+    100%{
+        opacity: 1;
+    }
+}
+
+@keyframes animShake{
+    0%{
+        top: 0;
+    }
+    50%{
+        top: -40px;
+    }
+    80%{
+        top: 10px;
+    }
+    100%{
+        top: 0;
+    }
+}
+
+.msg-center-container{
+    display: flex;
+    height:90vh;
+    color: #fafafa;
+    font-size: 48px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+}
+
+.msg-center{
+    position: relative;
+    width: 100%;
+}
+
+.msg-center a{
+    position: relative;
+    color: #ff2d57;
+    text-decoration: none;
+    animation: animShake 1s;
+    animation-delay: 6s;
+}
+
+.msg-center-container .msg{
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+    opacity: 0;
+    animation: animMsg 2s;
+}
+
+.msg-center-container #msg-1{
+    animation-delay: 100ms;
+}
+
+.msg-center-container #msg-2{
+    animation-delay: 2.1s;
+}
+
+.msg-center-container #msg-3{
+    animation: animLastMsg 2s;
+    animation-fill-mode: forwards;
+    animation-delay: 4.2s;
+}

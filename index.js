@@ -56,7 +56,7 @@ app.get('/', (req, res) => {
     if (req.session.user && req.session.user.googleId) {
         res.sendFile(path.join(__dirname, 'html/index.html'));
     } else {
-        res.redirect('/login');
+        res.sendFile(path.join(__dirname, 'html/start.html'));
     }
 });
 

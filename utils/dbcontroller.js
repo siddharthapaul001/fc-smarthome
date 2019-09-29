@@ -43,15 +43,17 @@ mongoClient.connect('mongodb+srv://' + user + ':' + pass + '@sidsmarthome-jxheb.
     });
 
 function getUser(user, cb, isGuest) {
-    let updateUser = user;
+    let updateUser = user,
+    allowedParams = ['googleId', 'fullName', 'name', 'email', 'dp'];
     if(isGuest){
         updateUser = {email: user.email};
+        allowedParams = ['name', 'email'];
     }
     db.collection('users').findOneAndUpdate({ $or: [{ googleId: user.googleId }, { email: user.email }] }, { $set: updateUser },
         { returnOriginal: false },
         (err, data) => {
             if (!data["value"]) {
-                db.collection('users').insertOne(sanitizeParams(user, ['googleId', 'fullName', 'name', 'email', 'dp']), { returnOriginal: false }, (err, insertedData) => {
+                db.collection('users').insertOne(sanitizeParams(user, allowedParams), { returnOriginal: false }, (err, insertedData) => {
                     cb(err, insertedData.ops[0]);
                 });
             } else {
@@ -125,7 +127,6 @@ function setDeviceStatus(userId, deviceInfo, cb) {
     db.collection('rooms').findOneAndUpdate({ $or: [{ _id: mongoDB.ObjectID(roomId), owner: userId }, { _id: mongoDB.ObjectID(roomId), guests: userId }] }, { $set: { lastUpdated: lt } }, { returnOriginal: false }, (err, roomFound) => {
         if (roomFound) {
             db.collection('devices').findOneAndUpdate({ _id: mongoDB.ObjectID(deviceInfo._id), roomId: roomId }, { $set: { value: +deviceInfo.value, lastUpdated: lt } }, { returnOriginal: false }, (err, deviceData) => {
-                console.log(deviceData);
                 cb(err, { code: 200, "device": deviceData["value"] });
             });
         } else {

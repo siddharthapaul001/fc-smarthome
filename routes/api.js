@@ -108,9 +108,9 @@ apiRouter.post('/devices/remove/:roomId/:deviceId', (req, res) => {
         deviceId = req.params.deviceId,
         lt = +req.query.lt || 0;
         removeDevice(req.session.user._id, roomId, deviceId, (err, result) => {
-            if(err){
-                console.log(err);
-            }
+            // if(err){
+            //     console.log(err);
+            // }
             res.end(JSON.stringify({n: result["n"]}));
         });
     }else{

@@ -809,7 +809,7 @@ nav li:hover .submenu{
     display: flex;
     height:60vh;
     color: #fafafa;
-    font-size: 48px;
+    font-size: xx-large;
     text-align: center;
     justify-content: center;
     align-items: center;
@@ -819,6 +819,7 @@ nav li:hover .submenu{
 @media (min-width: 576px){
     .msg-center-container{
         height: 90vh;
+        font-size: 48px;
     }
 }
 
@@ -832,7 +833,7 @@ nav li:hover .submenu{
     color: #ff2d57;
     text-decoration: none;
     animation: animShake 1s;
-    animation-delay: 6s;
+    animation-delay: 5s;
 }
 
 .msg-center-container .msg{
@@ -845,7 +846,13 @@ nav li:hover .submenu{
 }
 
 .msg.small{
-    font-size: xx-large;
+    font-size: large;
+}
+
+@media (min-width: 576px){
+    .msg.small{
+        font-size: xx-large;
+    }
 }
 
 .msg-center-container #msg-1{
@@ -856,8 +863,11 @@ nav li:hover .submenu{
     animation-delay: 2.1s;
 }
 
-.msg-center-container #msg-3{
+.msg-center-container .msg-hold{
     animation: animLastMsg 2s;
     animation-fill-mode: forwards;
+}
+
+.msg-center-container #msg-3{
     animation-delay: 4.2s;
 }

@@ -509,17 +509,19 @@
                                 }
                             }
                         });
-                        for(let i = roomDeviceMap[roomId].length - 1; i >= 0 && findRemoved; i--){
+                        for (let i = roomDeviceMap[roomId].length - 1; i >= 0 && findRemoved; i--) {
                             let deviceExits = false;
                             res.devices.forEach(device => {
-                                if(device._id === roomDeviceMap[roomId][i]._id){
+                                if (device._id === roomDeviceMap[roomId][i]._id) {
                                     deviceExits = true;
                                 }
                             });
-                            if(!deviceExits){
+                            if (!deviceExits) {
                                 //device deleted remove it
-                                devices[deviceIdMap[roomDeviceMap[roomId][i]._id]].hide(true, true);
-                                devices[deviceIdMap[roomDeviceMap[roomId][i]._id]] = null;
+                                if (opendRoom && selectedRoomId === roomId) {
+                                    devices[deviceIdMap[roomDeviceMap[roomId][i]._id]].hide(true, true);
+                                    devices[deviceIdMap[roomDeviceMap[roomId][i]._id]] = null;
+                                }
                                 roomDeviceMap[roomId].splice(i, 1);
                             }
                         }

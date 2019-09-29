@@ -424,7 +424,7 @@
                     if (res[i].lastUpdated > lastUpdated) {
                         lastUpdated = res[i].lastUpdated;
                     }
-                    reqDeviceList(res[i]._id, lt);
+                    reqDeviceList(res[i]._id, lt, res[i].lastRemoved > lt);
                 }
             });
         }
@@ -469,6 +469,7 @@
                     deviceType: isRegulator ? 1 : 0,
                     roomId: document.getElementById('room-id').value,
                     wattage: isRegulator ? 5 : 1,
+                    value: 0
                 }
             if (isRegulator) {
                 deviceData['range'] = [0, 100];
@@ -483,14 +484,15 @@
             }, deviceData);
         }
 
-        function reqDeviceList(roomId, lt = 0) {
+        function reqDeviceList(roomId, lt = 0, findRemoved) {
+            lt = findRemoved && lt !== 0 ? 0 : lt;
             sendRequest('GET', '/api/devices/list/' + roomId + '?lt=' + lt, (res) => {
                 if (res.code === 200) {
                     if (roomDeviceMap[roomId] !== undefined) {
                         res.devices.forEach(device => {
                             let deviceFound = false;
                             for (let i = 0; i < roomDeviceMap[roomId].length && !deviceFound; i++) {
-                                if (roomDeviceMap[roomId][i]._id === device._id) {
+                                if (roomDeviceMap[roomId][i] && roomDeviceMap[roomId][i]._id === device._id) {
                                     roomDeviceMap[roomId][i] = device;
                                     deviceFound = true;
                                 }
@@ -502,10 +504,25 @@
                                     device['isNew'] = true;
                                     devices.push(new Device(equipmentContainer, device, equipmentContainer.getElementsByClassName('equipment')[0], reqUpdateDeviceStatus))
                                 } else {
+                                    //old device update status
                                     devices[deviceIdMap[device._id]].update(device);
                                 }
                             }
                         });
+                        for(let i = roomDeviceMap[roomId].length - 1; i >= 0 && findRemoved; i--){
+                            let deviceExits = false;
+                            res.devices.forEach(device => {
+                                if(device._id === roomDeviceMap[roomId][i]._id){
+                                    deviceExits = true;
+                                }
+                            });
+                            if(!deviceExits){
+                                //device deleted remove it
+                                devices[deviceIdMap[roomDeviceMap[roomId][i]._id]].hide(true, true);
+                                devices[deviceIdMap[roomDeviceMap[roomId][i]._id]] = null;
+                                roomDeviceMap[roomId].splice(i, 1);
+                            }
+                        }
                     } else {
                         roomDeviceMap[roomId] = res.devices;
                         // if (roomId === selectedRoomId) {
@@ -516,7 +533,7 @@
                         //     }
                         // }
                     }
-                    if(roomsIdMap[roomId] !== undefined){
+                    if (roomsIdMap[roomId] !== undefined) {
                         calculateStats(roomId);
                     }
                 } else {
@@ -525,14 +542,35 @@
             });
         }
 
-        function calculateStats(roomId){
+        function reqRemoveDevice(deviceId) {
+            closeModal();
+            sendRequest('POST', '/api/devices/remove/' + selectedRoomId + '/' + deviceId, (res) => {
+                if (res.n === 1) {
+                    let idx, found = false;
+                    devices[deviceIdMap[deviceId]].hide(true, true);
+                    devices[deviceIdMap[deviceId]] = null;
+                    for (idx = 0; idx < roomDeviceMap[selectedRoomId].length && !found; idx++) {
+                        if (roomDeviceMap[selectedRoomId][idx]._id === deviceId) {
+                            roomDeviceMap[selectedRoomId].splice(idx, 1);
+                            found = true;
+                        }
+                    }
+                } else {
+                    //Snackbar message deleted
+                }
+            });
+        }
+
+        function calculateStats(roomId) {
             let online = 0, total = 0, usage = 0;
             roomDeviceMap[roomId].forEach(device => {
-                usage += device.wattage * (device.value || 0) / 100;
-                online += device.value > 0;
-                total++;
+                if (device) {
+                    usage += device.wattage * (device.value || 0) / 100;
+                    online += device.value > 0;
+                    total++;
+                }
             });
-            rooms[roomsIdMap[roomId]].update({usage, online, devices: total});
+            rooms[roomsIdMap[roomId]].update({ usage, online, devices: total });
         }
 
         function renderDeviceList(roomId) {
@@ -540,8 +578,10 @@
             deviceIdMap = {};
             devices = [];
             for (let i = roomDeviceMap[roomId].length - 1; i >= 0; i--) {
-                deviceIdMap[roomDeviceMap[roomId][i]._id] = devices.length;
-                devices.push(new Device(equipmentContainer, roomDeviceMap[roomId][i], undefined, reqUpdateDeviceStatus));
+                if (roomDeviceMap[roomId][i]) {
+                    deviceIdMap[roomDeviceMap[roomId][i]._id] = devices.length;
+                    devices.push(new Device(equipmentContainer, roomDeviceMap[roomId][i], undefined, reqUpdateDeviceStatus));
+                }
             }
         }
 

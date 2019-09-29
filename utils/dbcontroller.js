@@ -107,7 +107,8 @@ function getDeviceListByRoom(userId, roomId, lt, cb) {
 }
 
 function removeDevice(userId, roomId, deviceId, cb) {
-    db.collection('rooms').findOneAndUpdate({ _id: mongoDB.ObjectID(roomId), owner: userId }, { $set: { lastUpdated: (new Date()).getTime() } }, { returnOriginal: false }, (err, roomFound) => {
+    let lt = (new Date()).getTime();
+    db.collection('rooms').findOneAndUpdate({ _id: mongoDB.ObjectID(roomId), owner: userId }, { $set: { lastUpdated: lt, lastRemoved: lt } }, { returnOriginal: false }, (err, roomFound) => {
         if (roomFound) {
             db.collection('devices').deleteOne({ _id: mongoDB.ObjectID(deviceId), roomId: roomId }, (err, res) => {
                 cb(err, res["result"]);

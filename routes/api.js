@@ -102,6 +102,22 @@ apiRouter.post('/devices/add', (req, res)=> {
     }
 });
 
+apiRouter.post('/devices/remove/:roomId/:deviceId', (req, res) => {
+    if(sendHeaders(req, res)){
+        let roomId = req.params.roomId,
+        deviceId = req.params.deviceId,
+        lt = +req.query.lt || 0;
+        removeDevice(req.session.user._id, roomId, deviceId, (err, result) => {
+            if(err){
+                console.log(err);
+            }
+            res.end(JSON.stringify({n: result["n"]}));
+        });
+    }else{
+        res.end(JSON.stringify({}));
+    }
+});
+
 apiRouter.get('/devices/list/:roomId', (req, res) => {
     if(sendHeaders(req, res)){
         let roomId = req.params.roomId, 

@@ -4,6 +4,9 @@ function sendRequest(method, url, cb, data) {
         if (this.readyState == 4 && this.status == 200) {
             cb(JSON.parse(xhr.responseText));
         }
+        if (this.readyState == 4 && this.status == 401) {
+            window.location.reload();
+        }
     };
     xhr.onerror = function(){
         //show snackbar message network error

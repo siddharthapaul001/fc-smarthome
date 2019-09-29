@@ -69,7 +69,7 @@ app.get('/auth', passport.authenticate('google'), (req, res) => {
 
 app.get('/logout', (req, res) => {
     req.session.destroy((err) => {
-        res.end('You are successfully logged out');
+        res.sendFile(path.join(__dirname, 'html/logout.html'));
         //res.redirect('https://accounts.google.com/logout');
     });
 })

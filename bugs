@@ -1,0 +1,11 @@
+ui---------------
+1. Add swipe over room icons on add room
+2. Add guest dialog should be in different dialog box (currently top of the list)
+3. Buttons, links shows outline on firefox
+4. Show loading on ajax calls
+5. Show interactive messages when no room / device
+4. Home page body may take full width
+
+functionality----
+1. Delete room should be visible realtime on another opened window (On remove room or remove guest access) 
+2. 

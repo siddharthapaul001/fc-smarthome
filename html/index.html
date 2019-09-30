@@ -171,7 +171,7 @@
                         if (roomCategory === 1) {
                             document.getElementById('btn-add-room').removeAttribute('style');
                         } else {
-                            document.getElementById('btn-add-room').style.visibility = 'none';
+                            document.getElementById('btn-add-room').style.visibility = 'hidden';
                         }
                         roomSelected.setAttribute('style', 'left:' + ((roomCategory - 1) * 50) + '%;right:' + ((2 - roomCategory) * 50) + '%;');
                         ownRooms.style.marginLeft = '-' + ((roomCategory - 1) * 100) + '%';

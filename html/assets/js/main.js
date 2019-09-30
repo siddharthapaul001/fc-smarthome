@@ -133,7 +133,7 @@ class Room extends Root {
     update(attr) {
         this._attr.name = attr.roomName || this._attr.name; //saniized name from server
         this._attr.iconSrc = attr.roomIcon || this._attr.iconSrc; //sanitized icon src from server
-        this._attr.stats = [+attr.usage || this._attr.stats[0], +attr.online || this._attr.stats[1], +attr.devices || this._attr.stats[2]];
+        this._attr.stats = [+attr.usage >= 0 ? +attr.usage : this._attr.stats[0], +attr.online >= 0 ? +attr.online : this._attr.stats[1], +attr.devices >= 0 ? +attr.devices : this._attr.stats[2]];
         this._attr.guests = attr.guests || this._attr.guests;
         this.render(true);
     }
@@ -245,7 +245,7 @@ class Device extends Root {
         //code to update on server
         this._attr.name = attr.deviceName || this._attr.name; //saniized name from server
         this._attr.value = +attr.value >= 0 ? +attr.value : this._attr.value;
-        this._attr.wattage = +attr.wattage || this._attr.wattage;
+        this._attr.wattage = +attr.wattage >= 0 ? +attr.wattage : this._attr.wattage;
         this._attr.online = this._attr.value ? ((new Date()).getTime() - attr.lastUpdated) / (3600 * 1000) >> 0 : 0;
         this._attr.stats = [this._attr.wattage * this._attr.value / 100, _getTimeString(this._attr.online)];
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc; //sanitized icon src from server

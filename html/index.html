@@ -535,6 +535,7 @@
                             if (roomId === selectedRoomId) {
                                 if (!deviceFound) {
                                     //new device
+                                    roomDeviceMap[roomId].push(device);
                                     deviceIdMap[device._id] = devices.length;
                                     device['isNew'] = true;
                                     devices.push(new Device(equipmentContainer, device, equipmentContainer.getElementsByClassName('equipment')[0], reqUpdateDeviceStatus))

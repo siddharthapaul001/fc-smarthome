@@ -1,11 +1,14 @@
 ui---------------
-1. Add swipe over room icons on add room
-2. Add guest dialog should be in different dialog box (currently top of the list)
-3. Buttons, links shows outline on firefox
-4. Show loading on ajax calls
-5. Show interactive messages when no room / device
-4. Home page body may take full width
+1. Add device should have inputs on wattage, range, no of nobs (only for regulator)
+2. Add swipe over room icons on add room
+3. Add guest dialog should be in different dialog box (currently top of the list)
+4. Show google dps instead of font awesome icons
+4. Buttons, links shows outline on firefox
+5. Show loading on ajax calls
+6. Show interactive messages when no room / device
+7. Home page body may take full width
+8. May change background color
 
 functionality----
 1. Delete room should be visible realtime on another opened window (On remove room or remove guest access) 
-2. 
+2. Build an endpoint for embedded systems (May be in SSE for fetch and ajax for submit)

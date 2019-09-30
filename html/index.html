@@ -168,6 +168,11 @@
                 }
                 if (!requestedToggle) {
                     requestAnimationFrame(() => {
+                        if (roomCategory === 1) {
+                            document.getElementById('btn-add-room').removeAttribute('style');
+                        } else {
+                            document.getElementById('btn-add-room').style.visibility = 'none';
+                        }
                         roomSelected.setAttribute('style', 'left:' + ((roomCategory - 1) * 50) + '%;right:' + ((2 - roomCategory) * 50) + '%;');
                         ownRooms.style.marginLeft = '-' + ((roomCategory - 1) * 100) + '%';
                         requestedToggle = false;
@@ -189,11 +194,9 @@
                     if (rooms[selectedRoomIdx]._attr.type === 0) {
                         document.getElementById('btn-add-device').removeAttribute('style');
                         document.getElementById('btn-show-guests').removeAttribute('style');
-                        document.getElementById('btn-add-room').removeAttribute('style');
-                    }else{
+                    } else {
                         document.getElementById('btn-add-device').style.display = 'none';
                         document.getElementById('btn-show-guests').style.display = 'none';
-                        document.getElementById('btn-add-room').style.display = 'none';
                     }
                     roomsContainer.style.overflow = 'hidden';
                     let rect = selectedRoom.getBoundingClientRect(),
@@ -595,11 +598,11 @@
             });
         }
 
-        function reqRemoveGuest(btn, guestId){
+        function reqRemoveGuest(btn, guestId) {
             sendRequest('POST', '/api/guests/remove/' + selectedRoomId, (res) => {
                 closeModal();
                 console.log(res);
-            }, {guestId});
+            }, { guestId });
         }
 
         function calculateStats(roomId) {

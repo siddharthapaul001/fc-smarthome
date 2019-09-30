@@ -32,7 +32,7 @@
                     </div>
                 </li>
                 <li>
-                    <a href="#" class="btn" onclick="showAddRoom()" title="Add Room">
+                    <a id="btn-add-room" href="#" class="btn" onclick="showAddRoom()" title="Add Room">
                         <span class="fa fa-plus"></span>
                     </a>
                 </li>
@@ -189,9 +189,11 @@
                     if (rooms[selectedRoomIdx]._attr.type === 0) {
                         document.getElementById('btn-add-device').removeAttribute('style');
                         document.getElementById('btn-show-guests').removeAttribute('style');
+                        document.getElementById('btn-add-room').removeAttribute('style');
                     }else{
                         document.getElementById('btn-add-device').style.display = 'none';
                         document.getElementById('btn-show-guests').style.display = 'none';
+                        document.getElementById('btn-add-room').style.display = 'none';
                     }
                     roomsContainer.style.overflow = 'hidden';
                     let rect = selectedRoom.getBoundingClientRect(),

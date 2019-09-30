@@ -535,6 +535,7 @@
                             if (roomId === selectedRoomId) {
                                 if (!deviceFound) {
                                     //new device
+                                    device.isGuest = rooms[roomsIdMap[roomId]]._attr.type !== 0;
                                     roomDeviceMap[roomId].push(device);
                                     deviceIdMap[device._id] = devices.length;
                                     device['isNew'] = true;

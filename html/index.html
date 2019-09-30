@@ -621,7 +621,7 @@
             equipmentContainer.innerHTML = '';
             deviceIdMap = {};
             devices = [];
-            for (let i = roomDeviceMap[roomId].length - 1; i >= 0; i--) {
+            for (let i = roomDeviceMap[roomId].length - 1; i >= 0 && roomDeviceMap[roomId]; i--) {
                 if (roomDeviceMap[roomId][i]) {
                     deviceIdMap[roomDeviceMap[roomId][i]._id] = devices.length;
                     roomDeviceMap[roomId][i].isGuest = rooms[roomsIdMap[roomId]]._attr.type !== 0;

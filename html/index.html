@@ -10,7 +10,6 @@
     <link rel="stylesheet" type="text/css" href="assets/css/main.css">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Home</title>
-    <script src="assets/js/ajax.js"></script>
     <script src="assets/js/regulator.js"></script>
     <script src="assets/js/main.js"></script>
 </head>
@@ -97,10 +96,19 @@
         </div>
     </div>
 
+    <div id="snackbar" class="snackbar">
+        <!-- need to add a close button -->
+        <div id="snackbar-msg" class="snackbar-msg">
+
+        </div>
+    </div>
+
     <!-- <footer>
         <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a
                 href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
     </footer> -->
+
+    <script src="assets/js/ajax.js"></script>
 
     <script>
         var roomCategory = 1, requestedToggle = false, rooms = [], equipments = [], roomOpened = false, devices = [], guests = [],

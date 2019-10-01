@@ -22,10 +22,13 @@ const roomIcons = ['001-wardrobe.png', '012-rack.png', '025-closet.png', '041-ch
 // API CODES --> 200 OK, 401 UNAUTHORIZED MEANS REDIRECT TO LOGIN PAGE, 403 FORBIDDEN MEANS MAY LOGGED IN BUT DOESN'T ALLOWED TO PERFORM THE TASK
 
 //need to add csrf validation
-function sendHeaders(req, res) {
+function sendHeaders(req, res, inputErr) {
     let statusCode = 401;
     if (req.session.user && req.session.user._id) {
         statusCode = 200;
+        if(inputErr){
+            statusCode = 403;
+        }
     }
     res.writeHead(statusCode, {
         ...commonHeaders
@@ -52,20 +55,20 @@ apiRouter.post('/getprofilebasic', (req, res) => {
 })
 
 apiRouter.post('/rooms/add', (req, res) => {
-    let allOk = true, msg = '';
+    let allOk = true, msg = ['Couldn&#039;t add new room.'];
     // if(sendHeaders(req, res)){
     //     req.body
     // }
     //checks to do
     if (!req.body.roomName || req.body.roomName.length === 0) {
         allOk = false;
-        msg += 'Room name not provided.';
+        msg.push('Room name not provided.');
     }
     if (!req.body.roomIcon || !roomIcons.includes(req.body.roomIcon)){
         allOk = false;
-        msg += 'Incorrect room icon specified';
+        msg.push('Incorrect room icon specified');
     }
-    if(sendHeaders(req, res) && allOk){
+    if(sendHeaders(req, res, !allOk) && allOk){
         let roomData = req.body;
         roomData['owner'] = req.session.user._id;
         roomData['guests'] = [];
@@ -76,7 +79,10 @@ apiRouter.post('/rooms/add', (req, res) => {
             // }
             res.end(JSON.stringify(data));
         })
-    }else{
+    }else if(!allOk){
+        res.end(JSON.stringify({msg}));
+    }
+    else{
         res.end(JSON.stringify({}));
     }
 });

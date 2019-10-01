@@ -871,3 +871,44 @@ nav li:hover .submenu{
 .msg-center-container #msg-3{
     animation-delay: 4.2s;
 }
+
+/* Snackbar component */
+
+@keyframes animSnackbarShow{
+    0%{
+        bottom: -300px;
+    }
+    5%{
+        bottom: 0;
+    }
+    95%{
+        bottom: 0;
+    }
+    100%{
+        bottom: -300px;
+    }
+}
+
+.snackbar{
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: -300px;
+}
+
+.snackbar-msg{
+    text-align: center;
+    padding: 10px 12px;
+    background-color: #ff2d57;
+    color: #fff;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.snackbar-msg.success{
+    background-color: #477201;
+}
+
+.snackbar-show{
+    animation: animSnackbarShow 10s;
+}

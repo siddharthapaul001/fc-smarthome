@@ -10,6 +10,7 @@
     <link rel="stylesheet" type="text/css" href="assets/css/main.css">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Home</title>
+    <script src="assets/js/switch.js"></script>
     <script src="assets/js/regulator.js"></script>
     <script src="assets/js/main.js"></script>
 </head>
@@ -112,7 +113,7 @@
 
     <script>
         var roomCategory = 1, requestedToggle = false, rooms = [], equipments = [], roomOpened = false, devices = [], guests = [],
-            deviceIdMap = {}, roomsIdMap = {}, iconIndex = 0, userId, lastUpdated = 0, selectedRoomId, n;
+            deviceIdMap = {}, roomsIdMap = {}, iconIndex = 0, userId, lastUpdated = 0, selectedRoomId, n, nRooms;
 
         const roomIcons = ['001-wardrobe.png', '012-rack.png', '025-closet.png', '041-chandelier.png', 'bed.png', 'dog.png', 'mirror.png', 'window.png',
             '002-tv-table.png', '015-desk-1.png', '029-double-bed.png', '044-bunk-bed.png', 'bookcase.png', 'door-1.png', 'shower.png',
@@ -234,16 +235,18 @@
 
                 });
                 rooms.forEach(room => {
-                    if (room._attr && room._attr._id === id) {
-                        room.isSelected = true;
-                    } else {
-                        room.hide(false);
+                    if (room) {
+                        if (room._attr && room._attr._id === id) {
+                            room.isSelected = true;
+                        } else {
+                            room.hide(false);
+                        }
                     }
                 });
             }
         }
 
-        function closeRoom() {
+        function closeRoom(cb) {
             let roomsContainer = roomCategory === 1 ? ownRooms : guestRooms;
             selectedRoomId = undefined;
             if (roomOpened) {
@@ -258,16 +261,21 @@
                                 requestAnimationFrame(() => {
                                     roomInside.style.opacity = 0;
                                     rooms.forEach((room) => {
-                                        if (room.isSelected) {
-                                            room.isSelected = false;
-                                            room.fadeOut(() => {
-                                                roomOpened = false;
-                                                roomInside.style = 'display:none;';
-                                                roomInside.removeAttribute('data-init-style');
-                                            });
-                                        } else {
-                                            room.show();
-                                            roomContent.style.display = 'none';
+                                        if (room) {
+                                            if (room.isSelected) {
+                                                room.isSelected = false;
+                                                room.fadeOut(() => {
+                                                    roomOpened = false;
+                                                    roomInside.style = 'display:none;';
+                                                    roomInside.removeAttribute('data-init-style');
+                                                    if (typeof cb === 'function') {
+                                                        cb();
+                                                    }
+                                                });
+                                            } else {
+                                                room.show();
+                                                roomContent.style.display = 'none';
+                                            }
                                         }
                                     });
                                 })
@@ -305,9 +313,16 @@
             let guestElem, icon, elem, name, email, btnRemove;
             guestElem = document.createElement('div');
             guestElem.className = 'guest clearfix';
-            icon = document.createElement('span');
-            icon.className = 'fa fa-2x fa-user guest-icon';
-
+            if (guestData && guestData.dp) {
+                icon = document.createElement('img');
+                icon.className = 'guest-icon';
+                icon.title = guestData.name;
+                icon.alt = guestData.name;
+                icon.src = guestData.dp;
+            } else {
+                icon = document.createElement('span');
+                icon.className = 'fa fa-2x fa-user guest-icon';
+            }
             elem = document.createElement('div');
             elem.className = 'guest-txt';
 
@@ -315,8 +330,8 @@
             email = document.createElement('div');
 
             if (isInput) {
-                name.innerHTML = '<input name="guest-name" id="guest-name" class="inp" type="text" placeholder="Enter guest&quot;s name" />';
-                email.innerHTML = '<input name="guest-name" id="guest-email" class="inp" type="email" placeholder="Enter guest&quot;s gmail" />';
+                name.innerHTML = '<input name="guest-name" id="guest-name" class="inp" type="text" onkeydown="onEnterSubmit(this, event, 3)" placeholder="Enter guest&quot;s name" />';
+                email.innerHTML = '<input name="guest-name" id="guest-email" class="inp" type="email" onkeydown="onEnterSubmit(this, event, 3)" placeholder="Enter guest&quot;s gmail" />';
             } else {
                 email.className = 'small';
                 name.innerHTML = guestData.name;
@@ -351,10 +366,10 @@
                 '<button class="btn btn-right" onclick="changeRoomIcon(1)">&gt;</button>' +
                 '</div>' +
                 '<div class="txt-room-name">' +
-                '<input class="inp" id="inp-room-name" type="text" placeholder="Name the room" />' +
+                '<input class="inp" id="inp-room-name" type="text" onkeydown="onEnterSubmit(this, event, 1)" placeholder="Name the room" />' +
                 '</div>' +
                 '<div>' +
-                '<button class="btn btn-add-room" onclick="reqAddRoom(this)">+ Add room</button>' +
+                '<button id="btn-add-room" class="btn btn-add-room" onclick="reqAddRoom(this)">+ Add room</button>' +
                 '</div>' +
                 '</div>';
             showModal('Add Room', htmlStr);
@@ -363,15 +378,22 @@
         function showAddDevice(roomId) {
             let htmlStr = '<div id="card-add-room" class="device-add">' +
                 '<div class="txt-device-name">' +
-                '<input class="inp" id="inp-device-name" type="text" placeholder="Name the device" />' +
+                '<input class="inp" id="inp-device-name" type="text" onkeydown="onEnterSubmit(this, event, 2)" placeholder="Name the device" />' +
                 '</div>' +
-                '<div class="txt-device-type">' +
-                '<span>Control Type: </span><input type="radio" name="device-type" id="device-type-switch" value="switch" checked/> <label for="device-type-switch">Switch</label>' +
-                '<input type="radio" name="device-type" id="device-type-regulator" value="regulator" /> <label for="device-type-regulator">Regulator</label>' +
+                '<div class="txt-device-inp">' +
+                '<div><label for="device-type">Control Type: </label>' +
+                '<select onchange="onChangeDeviceType()" id="device-type" name="device-type">' +
+                '<option value="0">Switch</option>' +
+                '<option value="1">Regulator</option>' +
+                '</select></div>' +
                 '<input type="hidden" id="room-id" value="' + roomId + '">' +
                 '</div>' +
+                '<div class="txt-device-inp">' +
+                '<div id="steps-inp-container" style="display:none"><label for="steps">Steps: </label><input id="steps" name="steps" class="inp" type="number" min="3" value="10" max="25" /></div>' +
+                '<div><label for="wattage">Wattage: </label><input id="wattage" name="wattage" class="inp" type="number" min="1" value="1" max="1000" /><span class="small">KWH</span></div>' +
+                '</div>' +
                 '<div>' +
-                '<button class="btn btn-add-room" onclick="reqAddDevice()">+ Add device</button>' +
+                '<button id="btn-add-device" class="btn btn-add-room" onclick="reqAddDevice()">+ Add device</button>' +
                 '</div>' +
                 '</div>';
             showModal('Add Device', htmlStr);
@@ -428,7 +450,7 @@
         }
 
         function reqUpdateDeviceStatus(deviceId, value) {
-            console.log(deviceId, value);
+            //console.log(deviceId, value);
             sendRequest('POST', '/api/devices/status/' + selectedRoomId + '/' + deviceId, (res) => {
                 if (res.code === 200) {
                     if (deviceIdMap[deviceId]) {
@@ -439,9 +461,26 @@
             //console.log(selectedRoomId, deviceId, value);
         }
 
+        function mergeDps(guestInfo) {
+            sendRequest('POST', '/api/getprofilebasic', (res) => {
+                for (let i = 0; i < res.guests.length; i++) {
+                    for (let r = 0; r < guestInfo[res.guests[i]._id].length; r++) {
+                        let dp = document.createElement('img');
+                        dp.className = 'guest-icon dp';
+                        dp.src = res.guests[i].dp;
+                        dp.title = res.guests[i].name + ' <' + res.guests[i].email + '>';
+                        dp.alt = res.guests[i].email;
+                        console.log(dp);
+                        rooms[guestInfo[res.guests[i]._id][r]]._elem.root.appendChild(dp);
+                    }
+                }
+            }, { guestIds: Object.keys(guestInfo) });
+        }
+
         function reqAllRooms(userId, isFirst) {
             sendRequest('GET', '/api/rooms/list?lt=' + lastUpdated, (res) => {
-                let lt = lastUpdated, idx = 0;
+                let lt = lastUpdated, idx = 0, guestInfo = {};
+
                 for (let i = res.length - 1; i >= 0; i--) {
                     let roomsContainer = res[i].owner === userId ? ownRooms : guestRooms;
                     if (roomsIdMap[res[i]._id] === undefined) {
@@ -453,6 +492,15 @@
                         }
                         if (roomOpened) {
                             res[i].isHidden = true;
+                        }
+                        lt = 0; //room was not exist so fetch all devices
+                        if (res[i].type === 1) {
+                            //add guest dp
+                            if (guestInfo[res[i].owner]) {
+                                guestInfo[res[i].owner].push(roomsIdMap[res[i]._id]);
+                            } else {
+                                guestInfo[res[i].owner] = [roomsIdMap[res[i]._id]];
+                            }
                         }
                         rooms.push(new Room(roomsContainer, res[i], roomsContainer.getElementsByClassName('room')[0]));
                     } else {
@@ -469,6 +517,30 @@
                     }
                     reqDeviceList(res[i]._id, lt, res[i].lastRemoved > lt);
                 }
+                if (Object.keys(guestInfo).length) {
+                    mergeDps(guestInfo);
+                }
+            });
+        }
+
+        function updateRoomList() {
+            sendRequest('GET', '/api/rooms/listids', (res) => {
+                Object.keys(roomsIdMap).forEach(roomId => {
+                    let exists = false;
+                    res.forEach(room => {
+                        if (room._id === roomId) {
+                            exists = true;
+                        }
+                    });
+                    if (!exists) {
+                        if (roomId === selectedRoomId) {
+                            showSnackbar('You have no longer access to this room.');
+                            closeRoom(() => { removeRoom.apply(this, [roomId]) });
+                        } else {
+                            removeRoom(roomId);
+                        }
+                    }
+                });
             });
         }
 
@@ -495,28 +567,36 @@
             }, roomData);
         }
 
+        function removeRoom(roomId) {
+            rooms[roomsIdMap[roomId]].hide(true, true);
+            rooms[roomsIdMap[roomId]] = null;
+            delete roomsIdMap[roomId];
+            delete roomDeviceMap[roomId];
+        }
+
         function reqRemoveRoom(roomId) {
             sendRequest('POST', '/api/rooms/remove', (res) => {
                 closeModal();
                 if (res.nRemoved > 0) {
-                    rooms[roomsIdMap[roomId]].hide(true, true);
-                    rooms[roomsIdMap[roomId]] = null;
+                    removeRoom(roomId);
                 }//else show a snackbar with error message
             }, { _id: roomId });
         }
 
         function reqAddDevice() {
-            let isRegulator = document.getElementById('device-type-regulator').checked,
-                deviceData = {
-                    deviceName: document.getElementById('inp-device-name').value,
-                    deviceType: isRegulator ? 1 : 0,
-                    roomId: document.getElementById('room-id').value,
-                    wattage: isRegulator ? 5 : 1,
-                    value: 0
-                }
-            if (isRegulator) {
-                deviceData['range'] = [0, 100];
-                deviceData['steps'] = 10;
+            let controlId = +document.getElementById('device-type').value,
+                steps = +document.getElementById('steps').value,
+                name = document.getElementById('inp-device-name').value;
+            deviceData = {
+                deviceName: name.trim().length ? name : 'Unnamed device',
+                deviceType: controlId || 0,
+                roomId: document.getElementById('room-id').value,
+                wattage: +document.getElementById('wattage').value || 1,
+                value: 0
+            }
+            if (controlId === 1) {
+                //regulator
+                deviceData['steps'] = steps < 26 ? steps : 10;
             }
             sendRequest('POST', '/api/devices/add', (res) => {
                 closeModal();
@@ -552,6 +632,9 @@
                                     //old device update status
                                     devices[deviceIdMap[device._id]].update(device);
                                 }
+                            } else if (!deviceFound) {
+                                device.isGuest = rooms[roomsIdMap[roomId]]._attr.type !== 0;
+                                roomDeviceMap[roomId].push(device);
                             }
                         });
                         for (let i = roomDeviceMap[roomId].length - 1; i >= 0 && findRemoved; i--) {
@@ -590,15 +673,19 @@
         }
 
         function reqRemoveDevice(deviceId) {
+            let roomId = selectedRoomId;
             closeModal();
-            sendRequest('POST', '/api/devices/remove/' + selectedRoomId + '/' + deviceId, (res) => {
+            sendRequest('POST', '/api/devices/remove/' + roomId + '/' + deviceId, (res) => {
                 if (res.n === 1) {
                     let idx, found = false;
-                    devices[deviceIdMap[deviceId]].hide(true, true);
-                    devices[deviceIdMap[deviceId]] = null;
-                    for (idx = 0; idx < roomDeviceMap[selectedRoomId].length && !found; idx++) {
-                        if (roomDeviceMap[selectedRoomId][idx]._id === deviceId) {
-                            roomDeviceMap[selectedRoomId].splice(idx, 1);
+                    if (devices[deviceIdMap[deviceId]]) {
+                        //if still that room is opened
+                        devices[deviceIdMap[deviceId]].hide(true, true);
+                        devices[deviceIdMap[deviceId]] = null;
+                    }
+                    for (idx = 0; idx < roomDeviceMap[roomId].length && !found; idx++) {
+                        if (roomDeviceMap[roomId][idx]._id === deviceId) {
+                            roomDeviceMap[roomId].splice(idx, 1);
                             found = true;
                         }
                     }
@@ -611,7 +698,7 @@
         function reqRemoveGuest(btn, guestId) {
             sendRequest('POST', '/api/guests/remove/' + selectedRoomId, (res) => {
                 closeModal();
-                console.log(res);
+                //console.log(res);
             }, { guestId });
         }
 
@@ -642,14 +729,45 @@
             }
         }
 
+        function onEnterSubmit(elem, evt, formId) {
+            if (evt.keyCode === 13 && elem.value.trim() !== '') {
+                if (formId === 1) {
+                    reqAddRoom(document.getElementById('btn-add-room'));
+                } else if (formId === 2) {
+                    reqAddDevice();
+                } else if(formId === 3){
+                    reqAddGuest();
+                }
+            }
+        }
+
+        function onChangeDeviceType() {
+            if (+document.getElementById('device-type').value === 1) {
+                document.getElementById('steps-inp-container').style.display = 'block';
+            } else {
+                document.getElementById('steps-inp-container').style.display = 'none';
+            }
+        }
+
         function initView() {
             sendRequest('GET', '/api/getprofile', (data) => {
                 document.getElementById('username').innerHTML = data['name'];
                 userId = data['_id'];
                 reqAllRooms(userId, true);
                 n = setInterval(() => {
+                    updateRoomList();
+
                     reqAllRooms(userId);
                 }, 5000);
+                nRooms = setInterval(() => {
+                    if (roomOpened) {
+                        devices.forEach(device => {
+                            if (device) {
+                                device.update(); // update 1 min
+                            }
+                        })
+                    }
+                }, 60000);
             });
             requestAnimationFrame(() => {
                 ownRooms.setAttribute('style', 'max-height:' + (window.innerHeight - ownRooms.offsetTop - 20) + 'px;');

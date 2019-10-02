@@ -5,15 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="assets/css/switch.css">
     <script src="assets/js/regulator.js"></script>
+    <script src="assets/js/switch.js"></script>
 </head>
 <body>
     <div id="regulator">
 
     </div>
+    <div id="switch">
+
+    </div>
     <script>
         var r = new Regulator(document.getElementById('regulator'),
             100, '#f00', '#000', '#000', '#0f0', 10, 2);
+        var s = new Switch(document.getElementById('switch'), (val) => {
+            console.log(val);
+        })
     </script>
 </body>
 </html>

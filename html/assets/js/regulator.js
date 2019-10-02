@@ -2,7 +2,7 @@ class Regulator {
     constructor(parent, side, color, nobColor, scaleColor, setScaleColor, scale = 10, scaleWidth = 2, cb) {
         this._elem = {};
         this._attr = {};
-        this._attr.scale = +scale > 20 ? 20 : scale;
+        this._attr.scale = +scale > 35 ? 35 : scale;
         this._attr.color = color;
         this._attr.nobColor = nobColor;
         this._attr.scaleColor = scaleColor;

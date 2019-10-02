@@ -1,8 +1,10 @@
 function _getTimeString(mins) {
     let timeStr = '', d, h, m = mins;
+
     if (mins > 60) {
         h = (mins / 60) >> 0;
         m = (mins % 60);
+
     }
     if (h > 24) {
         d = (h / 24) >> 0;
@@ -15,9 +17,10 @@ function _getTimeString(mins) {
         timeStr += h + 'h ';
     }
     timeStr += m + 'm';
-    if (mins === 0) {
-        timeStr = 'less than a minute';
+    if (mins < 1) {
+        timeStr = ' < 1m';
     }
+
     return timeStr;
 }
 
@@ -218,17 +221,27 @@ class Room extends Root {
 
 class Device extends Root {
     constructor(parent, attr, beforeElem, cb) {
+        let kwh, temp;
         super(parent, attr._id);
-        this._attr.name = attr.deviceName || this._attr.name;
+        this._attr.name = attr.deviceName || 'Unnamed device';
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc;
         this._attr.isNew = Boolean(attr.isNew);
         this._attr.steps = +attr.steps || 10;
-        this.isRegulator = +attr.deviceType === 1;
+        this.type = +attr.deviceType || 0; // can access from outside
         this._attr.value = +attr.value >= 0 ? +attr.value : 0;
         this._attr.wattage = +attr.wattage || 0;
         this._attr.isGuest = Boolean(attr.isGuest);
-        this._attr.online = this._attr.value ? ((new Date()).getTime() - attr.lastUpdated) / (60 * 1000) >> 0 : 0;
-        this._attr.stats = [this._attr.wattage * this._attr.value / 100, _getTimeString(this._attr.online)];
+        this._attr.lastUpdated = +attr.lastUpdated || 0;
+        this._attr.online = this._attr.value ? ((new Date()).getTime() - this._attr.lastUpdated) / (60 * 1000) >> 0 : 0;
+        kwh = this._attr.wattage * this._attr.value / 100;
+        temp = kwh;
+        kwh = kwh >> 0;
+        temp = temp - kwh;
+        if(temp > 0){
+            //fraction exists
+            kwh += ((temp * 100) >> 0) * 0.01;
+        }
+        this._attr.stats = [kwh, _getTimeString(this._attr.online)];
         this._elem.stats = [];
         this._elem.beforeElem = beforeElem;
         this._attr.btnRAF = false;
@@ -241,19 +254,30 @@ class Device extends Root {
     }
 
     update(attr) {
-        console.log(attr);
-        //code to update on server
-        this._attr.name = attr.deviceName || this._attr.name; //saniized name from server
-        this._attr.value = +attr.value >= 0 ? +attr.value : this._attr.value;
-        this._attr.wattage = +attr.wattage >= 0 ? +attr.wattage : this._attr.wattage;
-        this._attr.online = this._attr.value ? ((new Date()).getTime() - attr.lastUpdated) / (3600 * 1000) >> 0 : 0;
-        this._attr.stats = [this._attr.wattage * this._attr.value / 100, _getTimeString(this._attr.online)];
+        let kwh, temp;
+        if (attr) {
+            this._attr.name = attr.deviceName || this._attr.name; //saniized name from server
+            this._attr.value = +attr.value >= 0 ? +attr.value : this._attr.value;
+            this._attr.wattage = +attr.wattage >= 0 ? +attr.wattage : this._attr.wattage;
+            this._attr.lastUpdated = +attr.lastUpdated || this._attr.lastUpdated;
+        }
         //this._attr.iconSrc = attr.icon || this._attr.iconSrc; //sanitized icon src from server
+        this._attr.online = this._attr.value ? ((new Date()).getTime() - this._attr.lastUpdated) / (60 * 1000) >> 0 : 0;
+        kwh = this._attr.wattage * this._attr.value / 100;
+        temp = kwh;
+        kwh = kwh >> 0;
+        temp = temp - kwh;
+        if(temp > 0){
+            //fraction exists
+            kwh += ((temp * 100) >> 0) * 0.01;
+        }
+        this._attr.stats = [kwh, _getTimeString(this._attr.online)];
+
         this.render(true);
     }
 
     _draw(isUpdate) {
-        let equipmentHead, icon, equipmentBody, stats, stat, txtStat, statClasses = ['stat-usage', 'stat-online'], statIcons = ['fa fa-line-chart', 'fa fa-clock-o'], switchWraper;
+        let equipmentHead, icon, equipmentBody, stats, stat, txtStat, statClasses = ['stat-usage', 'stat-online'], statIcons = ['fa fa-line-chart', 'fa fa-clock-o'];
         super._draw(isUpdate);
         if (!isUpdate) {
             this._elem.root.classList.add('equipment');
@@ -279,60 +303,20 @@ class Device extends Root {
                 equipmentHead.appendChild(this._elem.btnDelete);
             }
             equipmentBody = document.createElement('div');
-            switchWraper = document.createElement('div');
-            this._elem.selected = document.createElement('div');
             equipmentBody.className = 'equipment-body';
-            if (!this.isRegulator) {
-                switchWraper.className = 'switch-container';
-                this._elem.selected.className = this._attr.value === 0 ? 'selected off' : 'selected';
-
-                this._elem.btnOn = document.createElement('button');
-                this._elem.btnOff = document.createElement('button');
-
-                this._elem.btnOn.className = 'btn btn-toggle';
-                this._elem.btnOff.className = 'btn btn-toggle';
-
-                this._elem.btnOn.innerHTML = 'ON';
-                this._elem.btnOff.innerHTML = 'OFF';
-
-                this._elem.btnOn.addEventListener('click', () => {
-                    //Do ajax call
-                    if (this._callback) {
-                        this._callback(this._attr._id, 100);
-                    }
-                    if (!this._attr.btnRAF) {
-                        requestAnimationFrame(() => {
-                            this._elem.selected.classList.remove('off');
-                            this._attr.btnRAF = false;
-                        });
-                        this._attr.btnRAF = true;
-                    }
-                });
-
-                this._elem.btnOff.addEventListener('click', () => {
-                    //Do ajax call
-                    if (this._callback) {
-                        this._callback(this._attr._id, 0);
-                    }
-                    if (!this._attr.btnRAF) {
-                        requestAnimationFrame(() => {
-                            this._elem.selected.classList.add('off');
-                            this._attr.btnRAF = false;
-                        });
-                        this._attr.btnRAF = true;
-                    }
-                });
-
-                switchWraper.appendChild(this._elem.btnOn);
-                switchWraper.appendChild(this._elem.btnOff);
-
-                switchWraper.appendChild(this._elem.selected);
-
-                equipmentBody.appendChild(switchWraper);
-            } else {
-                this.regulator = new Regulator(
+            if (this.type === 0) {
+                this._elem.control = new Switch(
                     equipmentBody,
-                    180, '#1c90dd', '#aaa', '#aaa', '#477201', 10, 2,
+                    (val) => {
+                        if (this._callback) {
+                            this._callback(this._attr._id, val);
+                        }
+                    }
+                );
+            } else if (this.type === 1) {
+                this._elem.control = new Regulator(
+                    equipmentBody,
+                    180, '#1c90dd', '#aaa', '#aaa', '#477201', this._attr.steps, 2,
                     (val) => {
                         if (this._callback) {
                             this._callback(this._attr._id, val);
@@ -368,15 +352,7 @@ class Device extends Root {
         } else {
             this._elem.root.getElementsByClassName('stat-online')[0].removeAttribute('style');
         }
-        if (this.isRegulator) {
-            this.regulator.setValue(this._attr.value);
-        } else {
-            if (this._attr.value === 0) {
-                this._elem.selected.classList.add('off');
-            } else {
-                this._elem.selected.classList.remove('off');
-            }
-        }
+        this._elem.control.setValue(this._attr.value);
 
         if (!isUpdate) {
             if (this._elem.beforeElem instanceof HTMLElement) {

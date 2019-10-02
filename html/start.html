@@ -24,6 +24,21 @@
             </div>
         </div>
     </div>
+    <script>
+        (function(){
+            if(document.cookie && document.cookie.indexOf('visited') >= 0){
+                document.getElementById('msg-1').style.display = 'none';
+                document.getElementById('msg-2').style.display = 'none';
+                document.getElementById('msg-3').style.opacity = 1;
+                document.getElementById('msg-3').classList.add('no-animation');
+            }else{
+                let date = new Date(), str;
+                date.setDate(date.getDate() + 1);
+                str = 'visited=true; expires=' + date.toUTCString() + '; path=/;';
+                console.log(str);
+                document.cookie = str;
+            }
+        })();
+    </script>
 </body>
-
 </html>

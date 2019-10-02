@@ -301,13 +301,20 @@ nav li:hover .submenu{
     border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.inp{
+.inp, select{
     background-color: transparent;
     border: transparent;
     color: #fafafa;
+    margin: 7px 2px;
 }
 
-.btn:focus, .inp:focus{
+select option{
+    background-color: #141835;
+    color: #fafafa;
+    padding: 7px;
+}
+
+.btn:focus, .inp:focus, select:focus, select option:focus{
     outline: none;
 }
 
@@ -364,11 +371,13 @@ nav li:hover .submenu{
     max-width:80%;
 }
 
-.txt-device-type{
+.txt-device-inp{
     padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
 }
 
-.txt-device-type > *{
+.txt-device-inp > *{
     display: inline-block;
     vertical-align: middle;
 }
@@ -716,10 +725,20 @@ nav li:hover .submenu{
   .guest-icon{
       display: inline-block;
       float: left;
-      padding-top: 10px;
+      padding: 10px;
       width: 40px;
       height: auto;
       text-align: center;
+      border-radius: 30px;
+  }
+
+  .dp{
+      position: absolute;
+      left: 5px;
+      top: 5px;
+      width: 30px;
+      height: 30px;
+      border-radius: 25px;
   }
 
   .guest .btn-remove{
@@ -872,6 +891,10 @@ nav li:hover .submenu{
     animation-delay: 4.2s;
 }
 
+.msg-center-container .no-animation{
+    animation: none;
+}
+
 /* Snackbar component */
 
 @keyframes animSnackbarShow{
@@ -905,7 +928,7 @@ nav li:hover .submenu{
     margin: 0 auto;
 }
 
-.snackbar-msg.success{
+.snackbar.success .snackbar-msg{
     background-color: #477201;
 }
 

@@ -63,8 +63,13 @@ app.get('/', (req, res) => {
 app.get('/login', passport.authenticate('google', { scope: ['email', 'profile'], prompt: "select_account" }));
 
 app.get('/auth', passport.authenticate('google'), (req, res) => {
-    req.session.user = req.user;
-    res.redirect('/');
+    if(req.session.user && req.session.user._id){
+        //already logged in
+        res.redirect('/logout');
+    }else{
+        req.session.user = req.user;
+        res.redirect('/');
+    }
 });
 
 app.get('/logout', (req, res) => {

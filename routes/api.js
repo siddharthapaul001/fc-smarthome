@@ -1,5 +1,5 @@
 const apiRouter = require('express').Router();
-const { getUser, addRoom, removeRoom, getRoomsByUser, addDevice, removeDevice, getDeviceListByRoom, setDeviceStatus, getDevice, addGuest, removeGuest, getProfile } = require('../utils/dbcontroller');
+const { getUser, addRoom, removeRoom, getRoomsByUser, addDevice, removeDevice, getDeviceListByRoom, setDeviceStatus, getDevice, addGuest, removeGuest, getProfile, getRoomList } = require('../utils/dbcontroller');
 
 var commonHeaders = {
     'Content-Type': 'application/json'
@@ -108,6 +108,16 @@ apiRouter.get('/rooms/list', (req, res) => {
     }
 });
 
+apiRouter.get('/rooms/listids', (req, res) => {
+    if(sendHeaders(req, res)){
+        getRoomList(req.session.user._id, (err, roomIds) => {
+            res.end(JSON.stringify(roomIds));
+        });
+    }else{
+        res.end(JSON.stringify({}));
+    }
+});
+
 apiRouter.post('/devices/add', (req, res)=> {
     if(sendHeaders(req, res)){
         addDevice(req.session.user._id, req.body, (err, newDevice) => {
@@ -178,8 +188,8 @@ apiRouter.get('/devices/status/:roomId/:deviceId', (req, res) => {
 apiRouter.post('/guests/add/:roomId', (req, res) => {
     if(sendHeaders(req, res)){
         //need to check whether user adding self
-        addGuest(req.session.user._id, req.params.roomId, req.body, (err, guest) => {
-            res.end(JSON.stringify(guest));
+        addGuest(req.session.user._id, req.params.roomId, req.body, (err, updatedRoom) => {
+            res.end(JSON.stringify({updatedRoom, code: 200, msgs: ['Guest added successfully']}));
         }); 
     }else{
         res.end(JSON.stringify({}));
@@ -189,7 +199,7 @@ apiRouter.post('/guests/add/:roomId', (req, res) => {
 apiRouter.post('/guests/remove/:roomId', (req, res) => {
     if(sendHeaders(req, res)){
         removeGuest(req.session.user._id, req.params.roomId, req.body.guestId, (err, result) => {
-            res.end(JSON.stringify({n:result["n"]}));
+            res.end(JSON.stringify({n:result["n"], code: 200, msgs: ['Guest removed successfully']}));
         }); 
     }else{
         res.end(JSON.stringify({}));

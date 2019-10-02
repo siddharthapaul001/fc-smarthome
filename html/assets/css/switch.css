@@ -1,0 +1,42 @@
+
+.switch-container{
+    color: #ddd;
+}
+.switch-container{
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+}
+
+.switch-container .btn{
+    font-size: medium;
+    color: #fafafa;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 20;
+    padding: 7px 12px;
+}
+
+.switch-container .btn:focus{
+    outline: none;
+    box-shadow: 0;
+}
+
+.switch-container .selected{
+    background-color: #477201;
+    border-color: #477201;
+    position: absolute;
+    left: 0;
+    right: 50%;
+    top:0;
+    bottom:0;
+    z-index: 10;
+    transition: all 300ms ease;
+}
+
+.switch-container .selected.off{
+    background-color: #ea8600;
+    border-color: #ea8600;
+    left: 50%;
+    right: 0;
+}

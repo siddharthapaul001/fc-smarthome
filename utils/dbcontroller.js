@@ -82,13 +82,21 @@ function removeRoom(roomData, cb) {
     db.collection('rooms').deleteOne(sanitizeParams(roomData, ['_id', 'owner']), (err, data) => {
         if (data && data["result"] && data["result"]["n"] > 0) {
             db.collection('devices').deleteMany({ roomId: roomData._id });
+            cb(err, data["result"]);
+        } else {
+            cb(err, {...data["result"], code: 403, msgs: ['You are not authorized to perform the action']});
         }
-        cb(err, data["result"]);
     })
 }
 
 function getRoomsByUser(userId, lastUpdated, cb) {
     db.collection('rooms').find({ $or: [{ owner: userId, lastUpdated: { $gt: lastUpdated } }, { guests: userId, lastUpdated: { $gt: lastUpdated } }] }).toArray((err, data) => {
+        cb(err, data);
+    });
+}
+
+function getRoomList(userId, cb) {
+    db.collection('rooms').find({ $or: [{ owner: userId }, { guests: userId }] }).project({ _id: 1 }).toArray((err, data) => {
         cb(err, data);
     });
 }
@@ -99,9 +107,11 @@ function addDevice(userId, deviceData, cb) {
         if (data && data["value"]) {
             //userId is the owner of the room. so can add device to the room
             deviceData['lastUpdated'] = lt;
-            db.collection('devices').insertOne(sanitizeParams(deviceData, ['deviceName', 'deviceType', 'roomId', 'wattage', 'range', 'steps', 'value', 'lastUpdated']), { returnOriginal: false }, (err, newDevice) => {
+            db.collection('devices').insertOne(sanitizeParams(deviceData, ['deviceName', 'deviceType', 'roomId', 'wattage', 'range', 'steps', 'value', 'lastUpdated', 'controllerData']), { returnOriginal: false }, (err, newDevice) => {
                 cb(err, newDevice.ops[0]);
             });
+        } else {
+            cb(err, { code: 403, msgs: ['You may not have access to this room'] });
         }
     });
 }
@@ -113,7 +123,7 @@ function getDeviceListByRoom(userId, roomId, lt, cb) {
                 cb(err, { code: 200, devices });
             });
         } else {
-            cb(err, { code: 403 });
+            cb(err, { code: 403, msgs: ['You may not have access to this room'] });
         }
     });
 }
@@ -126,7 +136,7 @@ function removeDevice(userId, roomId, deviceId, cb) {
                 cb(err, res["result"]);
             });
         } else {
-            cb(err, { code: 403 });
+            cb(err, { code: 403, msgs: ['You may not have access to this room.'] });
         }
     });
 }
@@ -140,7 +150,7 @@ function setDeviceStatus(userId, deviceInfo, cb) {
                 cb(err, { code: 200, "device": deviceData["value"] });
             });
         } else {
-            cb(err, { code: 403 });
+            cb(err, { code: 403, msgs: ['You may not have access to this room.'] });
         }
     });
 }
@@ -170,15 +180,15 @@ function addGuest(userId, roomId, guest, cb) {
 function removeGuest(userId, roomId, guestId, cb) {
     db.collection('rooms').findOneAndUpdate({ _id: mongoDB.ObjectID(roomId), owner: userId }, { $set: { lastUpdated: (new Date()).getTime() }, $pull: { guests: guestId } }, { returnOriginal: false }, (err, roomFound) => {
         if (err) {
-            cb(err, {code: 500});
+            cb(err, { code: 500 });
         } else {
             if (roomFound && roomFound["value"]) {
                 cb(err, roomFound["value"]);
             } else {
-                cb(err, { code: 403 });
+                cb(err, { code: 403, msgs: ['You are not authorised to perform this action'] });
             }
         }
     });
 }
 
-module.exports = { mongoClient, getUser, addRoom, removeRoom, getRoomsByUser, addDevice, removeDevice, getDeviceListByRoom, setDeviceStatus, getDevice, addGuest, removeGuest, getProfile };
+module.exports = { mongoClient, getUser, addRoom, removeRoom, getRoomsByUser, addDevice, removeDevice, getDeviceListByRoom, setDeviceStatus, getDevice, addGuest, removeGuest, getProfile, getRoomList };

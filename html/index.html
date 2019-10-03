@@ -302,6 +302,7 @@
         }
 
         function closeModal() {
+            addedSwapListeners = false;
             modal.style.opacity = '0';
             setTimeout(() => {
                 modalBody.innerHTML = '';
@@ -360,7 +361,7 @@
 
         function showAddRoom() {
             let htmlStr = '<div id="card-add-room" class="room-add">' +
-                '<div class="img-selector">' +
+                '<div class="img-selector" ontouchstart="swipeRoomIcon(this, event)">' +
                 '<button class="btn btn-left" onclick="changeRoomIcon(-1)">&lt;</button>' +
                 '<img src="assets/images/home/001-wardrobe.png" id="room-icon" class="room-icon" alt="room-icon" title="room-icon" />' +
                 '<button class="btn btn-right" onclick="changeRoomIcon(1)">&gt;</button>' +
@@ -735,7 +736,7 @@
                     reqAddRoom(document.getElementById('btn-add-room'));
                 } else if (formId === 2) {
                     reqAddDevice();
-                } else if(formId === 3){
+                } else if (formId === 3) {
                     reqAddGuest();
                 }
             }
@@ -746,6 +747,29 @@
                 document.getElementById('steps-inp-container').style.display = 'block';
             } else {
                 document.getElementById('steps-inp-container').style.display = 'none';
+            }
+        }
+
+        var addedSwapListeners = false;
+        function swipeRoomIcon(elem, evt) {
+            let start = evt.touches, temp, end;
+
+            if (!addedSwapListeners) {
+                elem.addEventListener('touchmove', (evtMove) => {
+                    temp = evtMove.touches || temp;
+                    //console.log(temp);
+                });
+                elem.addEventListener('touchend', (evtEnd) => {
+                    end = temp || end;
+                    if (start[0].clientX - end[0].clientX > 0) {
+                        //left move
+                        changeRoomIcon(-1);
+                    } else {
+                        //right move
+                        changeRoomIcon(+1);
+                    }
+                });
+                addedSwapListeners = true;
             }
         }
 

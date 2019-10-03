@@ -752,14 +752,17 @@
 
         var addedSwapListeners = false;
         function swipeRoomIcon(elem, evt) {
+            evt.stopPropagation();
             let start = evt.touches, temp, end;
 
             if (!addedSwapListeners) {
                 elem.addEventListener('touchmove', (evtMove) => {
+                    evtMove.stopPropagation();
                     temp = evtMove.touches || temp;
                     //console.log(temp);
                 });
                 elem.addEventListener('touchend', (evtEnd) => {
+                    evtEnd.stopPropagation();
                     end = temp || end;
                     if (start[0].clientX - end[0].clientX > 0) {
                         //left move

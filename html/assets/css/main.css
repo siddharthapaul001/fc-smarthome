@@ -23,6 +23,7 @@ html, body{
     /* background-color: #41295a; */
     background-color: #141835;
     font-family: hind, sans-serif;
+    min-width: 100vh;
 }
 
 ul{

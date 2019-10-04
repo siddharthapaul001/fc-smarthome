@@ -49,7 +49,7 @@ app.use(session({
 app.use('/assets', express.static(path.join(__dirname, 'html/assets')));
 
 app.get('/', (req, res) => {
-    if (req.protocol === 'http') {
+    if (!req.secure) {
         res.redirect('https://' + req.host + '/');
     } else {
         if (req.session.user && req.session.user.googleId) {

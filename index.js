@@ -6,7 +6,7 @@ const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const path = require('path');
 // const { getUser } = require('./utils/dbcontroller');
 const secret = require('./secrets/googleoauth');
-const {apiRouter, getUser} = require('./routes/api');
+const { apiRouter, getUser } = require('./routes/api');
 
 const app = express();
 
@@ -43,33 +43,31 @@ app.use(session({
     secret: 'hoyHoyyyyyyH0yyYyyy@y!!!',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }
+    cookie: { secure: true }
 }));
 
 app.use('/assets', express.static(path.join(__dirname, 'html/assets')));
 
-app.get('/test', (req, res) => {
-    res.end(JSON.stringify(req.session.user));
-})
-
 app.get('/', (req, res) => {
-    if (req.session.user && req.session.user.googleId) {
-        res.sendFile(path.join(__dirname, 'html/index.html'));
+    if (req.protocol === 'http') {
+        res.sendRedirect('https://' + req.host + '/');
     } else {
-        res.sendFile(path.join(__dirname, 'html/start.html'));
+        if (req.session.user && req.session.user.googleId) {
+            res.sendFile(path.join(__dirname, 'html/index.html'));
+        } else {
+            res.sendFile(path.join(__dirname, 'html/start.html'));
+        }
     }
 });
 
 app.get('/login', passport.authenticate('google', { scope: ['email', 'profile'], prompt: "select_account" }));
 
 app.get('/auth', passport.authenticate('google'), (req, res) => {
-    if(req.session.user && req.session.user._id){
+    if (!req.session.user || !req.session.user._id) {
         //already logged in
-        res.redirect('/logout');
-    }else{
         req.session.user = req.user;
-        res.redirect('/');
     }
+    res.redirect('/');
 });
 
 app.get('/logout', (req, res) => {

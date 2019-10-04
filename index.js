@@ -60,10 +60,9 @@ app.get('/login', passport.authenticate('google', { scope: ['email', 'profile'],
 
 app.get('/auth', passport.authenticate('google'), (req, res) => {
     if (!req.session.user || !req.session.user._id) {
-        //already logged in
         req.session.user = req.user;
     }
-    res.redirect('/');
+    res.end('<html><head></head><body><script>(function(){window.location.href="/";})();</script></body></html>');
 });
 
 app.get('/logout', (req, res) => {

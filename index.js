@@ -43,7 +43,7 @@ app.use(session({
     secret: 'hoyHoyyyyyyH0yyYyyy@y!!!',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true }
+    cookie: { secure: false }
 }));
 
 app.use('/assets', express.static(path.join(__dirname, 'html/assets')));
@@ -62,7 +62,8 @@ app.get('/auth', passport.authenticate('google'), (req, res) => {
     if (!req.session.user || !req.session.user._id) {
         req.session.user = req.user;
     }
-    res.end('<html><head></head><body><script>(function(){window.location.href="/";})();</script></body></html>');
+    //res.end('<html><head></head><body><script>(function(){window.location.href="/";})();</script></body></html>');
+    res.redirect('/');
 });
 
 app.get('/logout', (req, res) => {

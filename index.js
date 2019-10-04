@@ -49,14 +49,10 @@ app.use(session({
 app.use('/assets', express.static(path.join(__dirname, 'html/assets')));
 
 app.get('/', (req, res) => {
-    if (!req.secure) {
-        res.redirect('https://' + req.host + '/');
+    if (req.session.user && req.session.user.googleId) {
+        res.sendFile(path.join(__dirname, 'html/index.html'));
     } else {
-        if (req.session.user && req.session.user.googleId) {
-            res.sendFile(path.join(__dirname, 'html/index.html'));
-        } else {
-            res.sendFile(path.join(__dirname, 'html/start.html'));
-        }
+        res.sendFile(path.join(__dirname, 'html/start.html'));
     }
 });
 

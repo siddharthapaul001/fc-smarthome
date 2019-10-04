@@ -50,7 +50,7 @@ app.use('/assets', express.static(path.join(__dirname, 'html/assets')));
 
 app.get('/', (req, res) => {
     if (req.protocol === 'http') {
-        res.sendRedirect('https://' + req.host + '/');
+        res.redirect('https://' + req.host + '/');
     } else {
         if (req.session.user && req.session.user.googleId) {
             res.sendFile(path.join(__dirname, 'html/index.html'));

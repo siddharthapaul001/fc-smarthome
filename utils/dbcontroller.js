@@ -1,7 +1,6 @@
 const mongoDB = require('mongodb');
 const mongoClient = mongoDB.MongoClient;
 
-const user = 'sid-smarthome', pass = 'cP7LXMiTmpgapt2o';
 let db;
 
 function antiXSS(str) {
@@ -25,7 +24,7 @@ function sanitizeParams(obj, allowedKeys) {
     return sanitizedObj;
 }
 
-mongoClient.connect('mongodb+srv://' + user + ':' + pass + '@sidsmarthome-jxheb.mongodb.net/test?retryWrites=true&w=majority',
+mongoClient.connect(process.env.DBLINK,
     {
         useNewUrlParser: true,
         useUnifiedTopology: true
